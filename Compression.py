@@ -1,3 +1,11 @@
+"""
+.                                   .
+|   Compression.py                  |
+|   Written by Dalen W. Brauner     |
+|   Status: Unfinished              |
+*                                   *
+
+"""
 # Builtin libs
 import math, random
 from math import sqrt, cos, pi
@@ -5,6 +13,7 @@ from math import sqrt, cos, pi
 # Required libs
 from numpy import matrix, array
 from scipy import ndimage as image
+
 # Custom libs
 # N/A
 
@@ -21,7 +30,8 @@ def main():
     [136, 156, 123, 167, 162, 144, 140, 147],
     [148, 155, 136, 155, 152, 147, 147, 136]
     ])
-    return DCT(UsersImage)
+    for mtrx in DCT(UsersImage):
+        print mtrx
 
 def Compress(i):
     """Returns a compressed version of the image."""
@@ -46,19 +56,24 @@ def Seperate_Color_Data(i):
 
 def DCT(M):
     """Given a numpy matrix "M", returns the DCT."""
+    
+    # Assure the matrix is square
+    N, width = M.shape
+    if N != width:  raise TypeError("DCT() requires matrix argument to be square")
+
+    # Calculate constants
+    first = 1.0/sqrt(N)
+    second = sqrt(2.0/N)
+    third = 1.0/(2.0*N)
+    
     # Create the Cosine Transform Matrix
-    C = matrix([[0 for i in xrange(8)] for i in xrange(8)],dtype='f')
-    for i in xrange(8): C[0,i] = 1.0/sqrt(8)
-    for i in xrange(7):
-        for j in xrange(8):
-            C[i+1,j] = .5 * cos( (2*j+1) *(i+1) *pi *.0625)
+    C = matrix([[0 for i in xrange(N)] for i in xrange(N)],dtype='f')
+    for i in xrange(N): C[0,i] = first
+    for i in xrange(N-1):
+        for j in xrange(N):
+            C[i+1,j] = second * cos( (2*j+1) *(i+1) *pi *third)
             
     # Calculate and round the DCT itself
-    dct = C * M * C.T
-    return dct.round(0)
+    return (C * M * C.T).round(0)
 
-#def 
-
-a = main()
-for mat in a:
-    print mat
+main()
