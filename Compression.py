@@ -36,7 +36,27 @@ def main():
 def Compress(i):
     """Returns a compressed version of the image."""
     Colors = Seperate_Color_Data(i)
+    print "R"
+    print Colors[0]
+    print "G"
+    print Colors[1]
+    print "B"
+    print Colors[2]
+    
     The_DCTs = map(DCT, Colors)
+    print "The_DCTs"
+    for Each_DCT in The_DCTs:
+        for Each_Thing in Each_DCT:
+            print Each_Thing
+        print ''
+
+##    Quan = map(Quantize, The_DCTs)
+##    print "Quan"
+##    print Quan,"\n"
+##    
+##    final_product = Quan
+##    return final_product
+        
     return The_DCTs
 
 def Seperate_Color_Data(i):
@@ -78,5 +98,8 @@ def DCT(M):
             
     # Calculate and round the DCT itself
     return (C * M * C.T).round(0)
+
+def Quantize(M):
+    return M
 
 main()
