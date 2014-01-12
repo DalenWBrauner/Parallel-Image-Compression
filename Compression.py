@@ -18,8 +18,8 @@ from scipy import ndimage as image
 # N/A
 
 def main():
-    ##UsersImage = image.imread(raw_input("What is the filename? "))
-    ##print Compress(UsersImage)
+##    UsersImage = image.imread(raw_input("What is the filename? "))
+##    NewImage = Compress(UsersImage)
     UsersImage = array([
     [140, 144, 147, 140, 140, 155, 179, 175],
     [144, 152, 140, 147, 140, 148, 167, 179],
@@ -35,11 +35,9 @@ def main():
 
 def Compress(i):
     """Returns a compressed version of the image."""
-    final_product = False
-    Colors = Seperate_Color_Data(i)    
+    Colors = Seperate_Color_Data(i)
     The_DCTs = map(DCT, Colors)
-    Quan = map(Quantize(2), The_DCTs)
-    return final_product
+    return The_DCTs
 
 def Seperate_Color_Data(i):
     """Returns an R, G and B matrix."""
@@ -72,6 +70,11 @@ def DCT(M):
     for i in xrange(N-1):
         for j in xrange(N):
             C[i+1,j] = second * cos( (2*j+1) *(i+1) *pi *third)
+
+    # Scale input pixel values to be consistent with the JPEG algorithm
+    for i in xrange(N):
+        for j in xrange(N):
+            M[i,j] = M[i,j] - 128
             
     # Calculate and round the DCT itself
     return (C * M * C.T).round(0)
