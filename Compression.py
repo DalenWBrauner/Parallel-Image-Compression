@@ -7,7 +7,7 @@
 
 """
 # Builtin libs
-import math, random
+import math, time
 from math import sqrt, cos, pi
 
 # Required libs
@@ -18,51 +18,18 @@ from scipy import ndimage as image
 # N/A
 
 def main():
-##    UsersImage = image.imread(raw_input("What is the filename? "))
-##    NewImage = Compress(UsersImage)
-    UsersImage = array([
-    [140, 144, 147, 140, 140, 155, 179, 175],
-    [144, 152, 140, 147, 140, 148, 167, 179],
-    [152, 155, 136, 167, 163, 162, 152, 172],
-    [168, 145, 156, 160, 152, 155, 136, 160],
-    [162, 148, 156, 148, 140, 136, 147, 162],
-    [147, 167, 140, 155, 155, 140, 136, 162],
-    [136, 156, 123, 167, 162, 144, 140, 147],
-    [148, 155, 136, 155, 152, 147, 147, 136]
-    ])
-    for mtrx in DCT(UsersImage):
-        print mtrx
+    UsersImage = image.imread(raw_input("What is the filename? "))
+    print "...file read!"
+    if (UsersImage.shape[0] %8 != 0) or (UsersImage.shape[1] %8 != 0):
+        raise TypeError("Requires an image whose size is a multiple of 8x8!")
+    NewImage = Compress(UsersImage)
 
-    UsersImage2 = array([
-    [52, 55, 61,  66,  70,  61, 64, 73],
-    [63, 59, 55,  90, 109,  85, 69, 72],
-    [62, 59, 68, 113, 144, 104, 66, 73],
-    [63, 58, 71, 122, 154, 106, 70, 69],
-    [67, 61, 68, 104, 126,  88, 68, 70],
-    [79, 65, 60,  70,  77,  68, 58, 75],
-    [85, 71, 64,  59,  55,  61, 65, 83],
-    [87, 79, 69,  68,  65,  76, 78, 94]
-    ])
-    for mtrx in DCT(UsersImage2):
-        print mtrx
-
-def Compress(i,):
+def Compress(i):
     """Returns a compressed version of the image."""
-    Colors = Seperate_Color_Data(i)
-    print "R"
-    print Colors[0]
-    print "G"
-    print Colors[1]
-    print "B"
-    print Colors[2]
+    Colors = Split_RGB(i)
+    Blocks = map(Split_Blocks, Colors)
+    The_DCTs = map(DCT, Blocks)
     
-    The_DCTs = map(DCT, Colors)
-    print "The_DCTs"
-    for Each_DCT in The_DCTs:
-        for Each_Thing in Each_DCT:
-            print Each_Thing
-        print ''
-
 ##    Quan = map(Quantize, The_DCTs)
 ##    print "Quan"
 ##    print Quan,"\n"
@@ -72,7 +39,13 @@ def Compress(i,):
         
     return The_DCTs
 
-def Seperate_Color_Data(i):
+def Split_RGB(i):
+    """Returns an R, G and B matrix."""
+    X, Y, Z = i.shape
+    R, G, B, trash = i.reshape((Z, X, Y))
+    return (R, G, B)
+
+def Seperate_Color_Data2(i):
     """Returns a Y', U and V matrix."""
     # Establish conversion constants
     C = (.299, .587, .114, -.14713, -.28886, .436, .615, -.51499, -.10001)
@@ -92,9 +65,12 @@ def Seperate_Color_Data(i):
             V[x].append( R*C[6] + G*C[7] + B*C[8])
     return( matrix(Y), matrix(U), matrix(V) )
 
+def Split_Blocks(M):
+    """Splits a Matrix into 8x8 blocks"""
+    return M
+
 def DCT(M):
     """Given a numpy matrix "M", returns the DCT."""
-    
     # Assure the matrix is square
     N, width = M.shape
     if N != width:  raise TypeError("DCT() requires matrix argument to be square")
@@ -121,5 +97,32 @@ def DCT(M):
 
 def Quantize(M):
     return M
+
+def Test_DCT():
+    UsersImage = array([
+    [140, 144, 147, 140, 140, 155, 179, 175],
+    [144, 152, 140, 147, 140, 148, 167, 179],
+    [152, 155, 136, 167, 163, 162, 152, 172],
+    [168, 145, 156, 160, 152, 155, 136, 160],
+    [162, 148, 156, 148, 140, 136, 147, 162],
+    [147, 167, 140, 155, 155, 140, 136, 162],
+    [136, 156, 123, 167, 162, 144, 140, 147],
+    [148, 155, 136, 155, 152, 147, 147, 136]
+    ])
+    for mtrx in DCT(UsersImage):
+        print mtrx
+
+    UsersImage2 = array([
+    [52, 55, 61,  66,  70,  61, 64, 73],
+    [63, 59, 55,  90, 109,  85, 69, 72],
+    [62, 59, 68, 113, 144, 104, 66, 73],
+    [63, 58, 71, 122, 154, 106, 70, 69],
+    [67, 61, 68, 104, 126,  88, 68, 70],
+    [79, 65, 60,  70,  77,  68, 58, 75],
+    [85, 71, 64,  59,  55,  61, 65, 83],
+    [87, 79, 69,  68,  65,  76, 78, 94]
+    ])
+    for mtrx in DCT(UsersImage2):
+        print mtrx
 
 main()
