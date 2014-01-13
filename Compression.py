@@ -73,17 +73,24 @@ def Compress(i,):
     return The_DCTs
 
 def Seperate_Color_Data(i):
-    """Returns an R, G and B matrix."""
-    R, G, B = [], [], []
+    """Returns a Y', U and V matrix."""
+    # Establish conversion constants
+    C = (.299, .587, .114, -.14713, -.28886, .436, .615, -.51499, -.10001)
+    # Prep YUV lists
+    Y, U, V = [], [], []
     for x in xrange(i.shape[0]):
-        R.append([])
-        G.append([])
-        B.append([])
+        Y.append([])
+        U.append([])
+        V.append([])
         for y in xrange(i.shape[1]):
-            R[x].append(int(i[x,y][0]))
-            G[x].append(int(i[x,y][1]))
-            B[x].append(int(i[x,y][2]))
-    return( matrix(R), matrix(G), matrix(B) )
+            R = int(i[x,y][0])
+            G = int(i[x,y][1])
+            B = int(i[x,y][2])
+            # Append to lists YUV
+            Y[x].append( R*C[0] + G*C[1] + B*C[2])
+            U[x].append( R*C[3] + G*C[4] + B*C[5])
+            V[x].append( R*C[6] + G*C[7] + B*C[8])
+    return( matrix(Y), matrix(U), matrix(V) )
 
 def DCT(M):
     """Given a numpy matrix "M", returns the DCT."""
