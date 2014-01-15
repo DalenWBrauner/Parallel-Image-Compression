@@ -15,21 +15,30 @@ from numpy import matrix, array
 from scipy import ndimage as image
 
 def main():
-    UsersImage = image.imread(raw_input("What is the filename? "))
+    print "What is the filename?"
+    UsersImage = image.imread(raw_input(''))
     print "...file read!"
     if (UsersImage.shape[0] %8 != 0) or (UsersImage.shape[1] %8 != 0):
         raise TypeError("Requires an image whose size is a multiple of 8x8!")
-    NewImage = Compress(UsersImage)
+    print "What level of image quality would you prefer?"
+    print "Please select an integer 1-25, 1 being the greatest quality but least compressed."
+    Quality = int(raw_input(''))
+    NewImage = Compress(UsersImage,Quality)
 
-def Compress(i):
+def Compress(i,q):
     """Returns a compressed version of the image.
     The majority of this should be parallelized."""
     Colors = Split_RGB(i)
     # This is split into three to avoid excessive compound lists
     R_Blocks, G_Blocks, B_Blocks = map(Split_Blocks, Colors)
-    R_DCTs = map(DCT, R_Blocks)
-    G_DCTs = map(DCT, G_Blocks)
-    B_DCTs = map(DCT, B_Blocks)
+    R_DCTs = map(Calc_DCT, R_Blocks)
+    G_DCTs = map(Calc_DCT, G_Blocks)
+    B_DCTs = map(Calc_DCT, B_Blocks)
+    # Each '_DCTs' variable is now an array of 8x8 matricies, encompassing
+    # the entire image for that respective color.
+    R_Quantized = Quantize(R_DCTs,q)
+    G_Quantized = Quantize(G_DCTs,q)
+    B_Quantized = Quantize(B_DCTs,q)
     
 ##    Quan = map(Quantize, The_DCTs)
 ##    print "Quan"
@@ -72,11 +81,11 @@ def Split_Blocks(M):
     w = M.shape[1]/8
     blocks = numpy.array([[0 for p in xrange(w)] for q in xrange(h)])
     for y in xrange(h):
-	for x in xrange(w):
-		blocks[x,y] = M[ (x*8) : (x*8+8), (y*8) : (y*8+8) ]
+        for x in xrange(w):
+            blocks[x,y] = M[(x*8) : (x*8+8), (y*8) : (y*8+8)]
     return blocks
 
-def DCT(M):
+def Calc_DCT(M):
     """Given a numpy matrix "M", returns the DCT."""
     # Assure the matrix is square
     N, width = M.shape
@@ -88,8 +97,10 @@ def DCT(M):
     third = 1.0/(2.0*N)
     
     # Create the Cosine Transform Matrix
-    C = matrix([[0 for i in xrange(N)] for i in xrange(N)],dtype='f')
-    for i in xrange(N): C[0,i] = first
+    C = matrix([[0 for j in xrange(N)] for i in xrange(N)],dtype='f')
+    # Correct the first few values
+    for i in xrange(N):
+        C[0,i] = first
     for i in xrange(N-1):
         for j in xrange(N):
             C[i+1,j] = second * cos( (2*j+1) *(i+1) *pi *third)
@@ -102,8 +113,30 @@ def DCT(M):
     # Calculate and round the DCT itself
     return (C * M * C.T).round(0)
 
-def Quantize(M):
-    return M
+def Quantize(A,Q):
+    """Given a numpy array of 8x8 matrices "A" and quality level "Q", returns
+    a numpy array of the same values in lists, zig-zagged and quantized."""
+    # Establishes the Quality Matrix and the Zigzag pattern
+    Qtrx = matrix([[(1 + (x + y + 1)*Q) for x in xrange(8)] for y in xrange(8)])
+    Zig = [(0,0),(0,1),(1,0),(2,0),(1,1),(0,2),(0,3),(1,2),(2,1),(3,0),
+           (4,0),(3,1),(2,2),(1,3),(0,4),(0,5),(1,4),(2,3),(3,2),(4,1),(5,0),
+           (6,0),(5,1),(4,2),(3,3),(2,4),(1,5),(0,6),(0,7),(1,6),(2,5),(3,4),(4,3),(5,2),(6,1),
+           (7,0),(7,1),(6,2),(5,3),(4,4),(3,5),(2,6),(1,7),(2,7),(3,6),(4,5),(5,4),(6,3),(7,2),
+           (7,3),(6,4),(5,5),(4,6),(3,7),(4,7),(5,6),(6,5),(7,4),(7,5),(6,6),(5,7),(6,7),(7,6),
+           (7,7)]
+    # Creates a list to be returned as the new array
+    New = []
+    for x in xrange(8):
+        New.append([])
+        for y in xrange(8):
+            # For every item in the 8x8 matrix, the respective quantized value is appended to Zag
+            # This is done in 'zig-zag' order via the tuples in Zig
+            M = A[x,y]
+            Zag = []
+            Zag = [ M[tup[0],tup[1]] / float(Qtrx[tup[0],tup[1]]) for tup in Zig]
+            Zagg = map(int,Zag)
+            New[x].append(Zagg)
+    return array(New)
 
 def Test_DCT():
     UsersImage = array([
@@ -116,9 +149,9 @@ def Test_DCT():
     [136, 156, 123, 167, 162, 144, 140, 147],
     [148, 155, 136, 155, 152, 147, 147, 136]
     ])
-    for mtrx in DCT(UsersImage):
+    for mtrx in Calc_DCT(UsersImage):
         print mtrx
-
+    print ''
     UsersImage2 = array([
     [52, 55, 61,  66,  70,  61, 64, 73],
     [63, 59, 55,  90, 109,  85, 69, 72],
@@ -129,7 +162,40 @@ def Test_DCT():
     [85, 71, 64,  59,  55,  61, 65, 83],
     [87, 79, 69,  68,  65,  76, 78, 94]
     ])
-    for mtrx in DCT(UsersImage2):
+    for mtrx in Calc_DCT(UsersImage2):
         print mtrx
+
+def Test_Quantize():
+    DCT_Before = matrix([
+    [ 92,   3,  -9,  -7,   3, -1,  0,  2],
+    [-39, -58,  12, -17,  -2,  2,  4,  2],
+    [-84,  62,   1, -18,   3,  4, -5,  5],
+    [-52, -36, -10,  14, -10,  4, -2,  0],
+    [-86, -40,  49,  -7,  17, -6, -2,  5],
+    [-62,  65, -12,  -2,   3, -8, -2,  0],
+    [-17,  14, -36,  17, -11,  3,  3, -1],
+    [-54,  32,  -9,  -9,  22,  0,  1,  3]
+    ])
+    Qtrx = matrix([[(1 + (x + y + 1)*2) for x in xrange(8)] for y in xrange(8)])
+    print Qtrx
+    print DCT_Before
+    DCT_Mid = DCT_Before.copy()
+    for i in xrange(8):
+        for j in xrange(8):
+            # Obnoxiously, python always rounds down, even with negative numbers.
+            # i.e. -39/5 = -8, while 39/5 = 7.
+            DCT_Mid[i,j] /= float(Qtrx[i,j])
+            DCT_Mid[i,j] = round(DCT_Mid[i,j])
+    print '\n',DCT_Mid
+    DCT_After = DCT_Mid.copy()
+    for i in xrange(8):
+        for j in xrange(8):
+            DCT_After[i,j] *= Qtrx[i,j]
+    print '\n',DCT_After
+    QQ = Quantize(array([[DCT_Before for x in xrange(8)] for x in xrange(8)]), 2)
+    print '\nCompare the following, the second being in zigzag order\n',DCT_Mid
+    print QQ[0,0]
+    print 'Ultimately, the important thing is the number of 0s.'
+    
 
 main()
