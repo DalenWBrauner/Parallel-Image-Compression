@@ -14,10 +14,13 @@ from math import sqrt, cos, pi
 from numpy import matrix, array
 from scipy import ndimage as image
 
+#
+##
+### Core functions
 def main():
     print "What is the filename?"
+    print "Hint: C:\Users\Dalen\Desktop\winter-wallpaper-24.png"
     UsersImage = image.imread(raw_input(''))
-    print "...file read!"
     if (UsersImage.shape[0] %8 != 0) or (UsersImage.shape[1] %8 != 0):
         raise TypeError("Requires an image whose size is a multiple of 8x8!")
     print "What level of image quality would you prefer?"
@@ -28,23 +31,54 @@ def main():
 def Compress(i,q):
     """Returns a compressed version of the image.
     The majority of this should be parallelized."""
+
+    print "Seperating Colors...",
+    t0 = time.clock()
     Colors = Split_RGB(i)
+    t1 = time.clock()
+    print "took",(t1-t0),"seconds."
+
+    print "Splitting the image into 8x8 blocks...",
+    t0 = time.clock()
     # This is split into three to avoid excessive compound lists
     R_Blocks, G_Blocks, B_Blocks = map(Split_Blocks, Colors)
-    R_DCTs = map(Calc_DCT, R_Blocks)
-    G_DCTs = map(Calc_DCT, G_Blocks)
-    B_DCTs = map(Calc_DCT, B_Blocks)
+    t1 = time.clock()
+    print "took",(t1-t0),"seconds."
+
+    print "Calculating DCTs...",
+    t0 = time.clock()
+    R_DCTs, G_DCTs, B_DCTs = R_Blocks.copy(), G_Blocks.copy(), B_Blocks.copy()
+    for i in xrange(R_Blocks.shape[0]):
+        for j in xrange(R_Blocks.shape[1]):
+            R_DCTs[i,j] = Calc_DCT(R_Blocks[i,j])
+            G_DCTs[i,j] = Calc_DCT(G_Blocks[i,j])
+            B_DCTs[i,j] = Calc_DCT(B_Blocks[i,j])
+    t1 = time.clock()
+    print "took",(t1-t0),"seconds."
+    print '\n Sample before DCT:'
+    print R_Blocks[0,0]
+    print '\n Sample after DCT:'
+    print R_DCTs[0,0]
+
+    print "Quantizing data...",
+    t0 = time.clock()
     # Each '_DCTs' variable is now an array of 8x8 matricies, encompassing
     # the entire image for that respective color.
     R_Quantized = Quantize(R_DCTs,q)
     G_Quantized = Quantize(G_DCTs,q)
     B_Quantized = Quantize(B_DCTs,q)
+    t1 = time.clock()
+    print "took",(t1-t0),"seconds."
+
+    print "Applying Huffman codes..."
+    t0 = time.clock()
+    R_Final = Huffman(R_Quantized)
+    G_Final = Huffman(G_Quantized)
+    B_Final = Huffman(B_Quantized)
+    t1 = time.clock()
+    print "took",(t1-t0),"seconds."
     
-##    Quan = map(Quantize, The_DCTs)
-##    print "Quan"
-##    print Quan,"\n"
-##    
-##    final_product = Quan
+##    final_product = ?
 ##    return final_product
         
     return (R_DCTs, G_DCTs, B_DCTs)
@@ -79,14 +113,15 @@ def Split_Blocks(M):
     """Splits a Matrix into an array of 8x8 blocks"""
     h = M.shape[0]/8
     w = M.shape[1]/8
-    blocks = numpy.array([[0 for p in xrange(w)] for q in xrange(h)])
-    for y in xrange(h):
-        for x in xrange(w):
-            blocks[x,y] = M[(x*8) : (x*8+8), (y*8) : (y*8+8)]
-    return blocks
+    blocks = [[] for q in xrange(w)]
+    for y in xrange(w):
+        for x in xrange(h):
+            blocks[y].append(M[(x*8) : (x*8+8), (y*8) : (y*8+8)])
+    A = array(blocks)
+    return A
 
 def Calc_DCT(M):
-    """Given a numpy matrix "M", returns the DCT."""
+    """Given a square numpy matrix "M", returns its DCT."""
     # Assure the matrix is square
     N, width = M.shape
     if N != width:  raise TypeError("DCT() requires matrix argument to be square")
@@ -138,6 +173,10 @@ def Quantize(A,Q):
             New[x].append(Zagg)
     return array(New)
 
+#
+##
+### Don't mind these, they're for debugging.
+
 def Test_DCT():
     UsersImage = array([
     [140, 144, 147, 140, 140, 155, 179, 175],
@@ -149,9 +188,8 @@ def Test_DCT():
     [136, 156, 123, 167, 162, 144, 140, 147],
     [148, 155, 136, 155, 152, 147, 147, 136]
     ])
-    for mtrx in Calc_DCT(UsersImage):
-        print mtrx
-    print ''
+    print Calc_DCT(UsersImage),'\n'
+    
     UsersImage2 = array([
     [52, 55, 61,  66,  70,  61, 64, 73],
     [63, 59, 55,  90, 109,  85, 69, 72],
@@ -162,9 +200,8 @@ def Test_DCT():
     [85, 71, 64,  59,  55,  61, 65, 83],
     [87, 79, 69,  68,  65,  76, 78, 94]
     ])
-    for mtrx in Calc_DCT(UsersImage2):
-        print mtrx
-
+    print Calc_DCT(UsersImage2)
+    
 def Test_Quantize():
     DCT_Before = matrix([
     [ 92,   3,  -9,  -7,   3, -1,  0,  2],
@@ -197,5 +234,7 @@ def Test_Quantize():
     print QQ[0,0]
     print 'Ultimately, the important thing is the number of 0s.'
     
+def Huffman(argument):
+    raise NotImplementedError
 
 main()
