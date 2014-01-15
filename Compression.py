@@ -14,9 +14,6 @@ from math import sqrt, cos, pi
 from numpy import matrix, array
 from scipy import ndimage as image
 
-# Custom libs
-# N/A
-
 def main():
     UsersImage = image.imread(raw_input("What is the filename? "))
     print "...file read!"
@@ -25,10 +22,14 @@ def main():
     NewImage = Compress(UsersImage)
 
 def Compress(i):
-    """Returns a compressed version of the image."""
+    """Returns a compressed version of the image.
+    The majority of this should be parallelized."""
     Colors = Split_RGB(i)
-    Blocks = map(Split_Blocks, Colors)
-    The_DCTs = map(DCT, Blocks)
+    # This is split into three to avoid excessive compound lists
+    R_Blocks, G_Blocks, B_Blocks = map(Split_Blocks, Colors)
+    R_DCTs = map(DCT, R_Blocks)
+    G_DCTs = map(DCT, G_Blocks)
+    B_DCTs = map(DCT, B_Blocks)
     
 ##    Quan = map(Quantize, The_DCTs)
 ##    print "Quan"
@@ -37,16 +38,16 @@ def Compress(i):
 ##    final_product = Quan
 ##    return final_product
         
-    return The_DCTs
+    return (R_DCTs, G_DCTs, B_DCTs)
 
 def Split_RGB(i):
     """Returns an R, G and B matrix."""
     X, Y, Z = i.shape
     R, G, B, trash = i.reshape((Z, X, Y))
-    return (R, G, B)
+    return (matrix(R), matrix(G), matrix(B))
 
 def Seperate_Color_Data2(i):
-    """Returns a Y', U and V matrix."""
+    """Returns a Y', U and V matrix. (Unused)"""
     # Establish conversion constants
     C = (.299, .587, .114, -.14713, -.28886, .436, .615, -.51499, -.10001)
     # Prep YUV lists
@@ -66,8 +67,14 @@ def Seperate_Color_Data2(i):
     return( matrix(Y), matrix(U), matrix(V) )
 
 def Split_Blocks(M):
-    """Splits a Matrix into 8x8 blocks"""
-    return M
+    """Splits a Matrix into an array of 8x8 blocks"""
+    h = M.shape[0]/8
+    w = M.shape[1]/8
+    blocks = numpy.array([[0 for p in xrange(w)] for q in xrange(h)])
+    for y in xrange(h):
+	for x in xrange(w):
+		blocks[x,y] = M[ (x*8) : (x*8+8), (y*8) : (y*8+8) ]
+    return blocks
 
 def DCT(M):
     """Given a numpy matrix "M", returns the DCT."""
