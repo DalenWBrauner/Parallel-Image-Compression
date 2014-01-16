@@ -85,8 +85,7 @@ def Compress(i,q):
 
 def Split_RGB(i):
     """Returns an R, G and B matrix."""
-    X, Y, Z = i.shape
-    R, G, B, trash = i.reshape((Z, X, Y))
+    R, G, B, Alpha = i.swapaxes(0,2)
     return (matrix(R), matrix(G), matrix(B))
 
 def Seperate_Color_Data2(i):
