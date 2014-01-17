@@ -19,7 +19,9 @@ from scipy import ndimage as image
 ### Core functions
 def main():
     print "What is the filename?"
-    print "Hint: C:\Users\Dalen\Desktop\winter-wallpaper-24.png"
+    print "Hints:"
+    print "C:\Users\Dalen\Desktop\winter-wallpaper-24.png"
+    print "C:\Users\Dalen\Desktop\\bird.png"
     UsersImage = image.imread(raw_input(''))
     if (UsersImage.shape[0] %8 != 0) or (UsersImage.shape[1] %8 != 0):
         raise TypeError("Requires an image whose size is a multiple of 8x8!")
@@ -47,18 +49,23 @@ def Compress(i,q):
 
     print "Calculating DCTs...",
     t0 = time.clock()
-    R_DCTs, G_DCTs, B_DCTs = R_Blocks.copy(), G_Blocks.copy(), B_Blocks.copy()
+    # Setup compound lists in an array-friendly format
+    R_DCTs, G_DCTs, B_DCTs = [], [], []
     for i in xrange(R_Blocks.shape[0]):
+        R_DCTs.append([])
+        G_DCTs.append([])
+        B_DCTs.append([])
         for j in xrange(R_Blocks.shape[1]):
-            R_DCTs[i,j] = Calc_DCT(R_Blocks[i,j])
-            G_DCTs[i,j] = Calc_DCT(G_Blocks[i,j])
-            B_DCTs[i,j] = Calc_DCT(B_Blocks[i,j])
+            # Add DCT Matrices to said array-friendly lists
+            R_DCTs[i].append(Calc_DCT(R_Blocks[i,j]))
+            G_DCTs[i].append(Calc_DCT(G_Blocks[i,j]))
+            B_DCTs[i].append(Calc_DCT(B_Blocks[i,j]))
+    # Convert to integer-only arrays when finished!
+    R_DCTs = array(R_DCTs,dtype='int')
+    G_DCTs = array(G_DCTs,dtype='int')
+    B_DCTs = array(B_DCTs,dtype='int')
     t1 = time.clock()
     print "took",(t1-t0),"seconds."
-    print '\n Sample before DCT:'
-    print R_Blocks[0,0]
-    print '\n Sample after DCT:'
-    print R_DCTs[0,0]
 
     print "Quantizing data...",
     t0 = time.clock()
@@ -80,8 +87,6 @@ def Compress(i,q):
     
 ##    final_product = ?
 ##    return final_product
-        
-    return (R_DCTs, G_DCTs, B_DCTs)
 
 def Split_RGB(i):
     """Returns an R, G and B matrix."""
