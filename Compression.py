@@ -39,7 +39,7 @@ def Compress(i,q):
     # 'i' Should be an Length*Width*4 array of RGB color values
     
     print "Seperating Colors...",
-    t0 = time.clock()
+    ts = t0 = time.clock()
     Colors = Split_RGB(i)
     t1 = time.clock()
     print "took",(t1-t0),"seconds."
@@ -100,8 +100,11 @@ def Compress(i,q):
     R_Final = Huffman(R_RunLen)
     G_Final = Huffman(G_RunLen)
     B_Final = Huffman(B_RunLen)
-    t1 = time.clock()
+    tf = t1 = time.clock()
     print "took",(t1-t0),"seconds."
+
+    print "The image has been compressed!"
+    print "Hah, and it only took",(tf-ts),"seconds!"
     
 ##    final_product = ?
 ##    return final_product
