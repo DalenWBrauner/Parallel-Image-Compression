@@ -14,9 +14,12 @@ from math import sqrt, cos, pi
 from numpy import matrix, array
 from scipy import ndimage as image
 
+# Custom libs
+from array_handler import arraymap
+
 #
 ##
-### Core functions
+### Core functions:
 def main():
     print "What is the filename?"
     print "Hints:"
@@ -25,75 +28,94 @@ def main():
     UsersImage = image.imread(raw_input(''))
     if (UsersImage.shape[0] %8 != 0) or (UsersImage.shape[1] %8 != 0):
         raise TypeError("Requires an image whose size is a multiple of 8x8!")
-    print "What level of image quality would you prefer?"
-    print "Please select an integer 1-25, 1 being the greatest quality but least compressed."
+    print "What level of image quality would you prefer? Please select an integer 1-25,"
+    print "1 being the greatest image quality but least compressed."
     Quality = int(raw_input(''))
     NewImage = Compress(UsersImage,Quality)
 
 def Compress(i,q):
     """Returns a compressed version of the image.
     The majority of this should be parallelized."""
-
+    # 'i' Should be an Length*Width*4 array of RGB color values
+    
     print "Seperating Colors...",
     t0 = time.clock()
     Colors = Split_RGB(i)
     t1 = time.clock()
     print "took",(t1-t0),"seconds."
-
+    # 'Colors' should be a list of the Length*Width arrays for each color value
+    
     print "Splitting the image into 8x8 blocks...",
     t0 = time.clock()
-    # This is split into three to avoid excessive compound lists
     R_Blocks, G_Blocks, B_Blocks = map(Split_Blocks, Colors)
     t1 = time.clock()
     print "took",(t1-t0),"seconds."
-
+    # Each '_Blocks' variable should be an array of 8x8 matricies, each containing
+    # the respective R, G or B pixel data for that 8x8 portion of the image
+    
     print "Calculating DCTs...",
     t0 = time.clock()
-    # Setup compound lists in an array-friendly format
-    R_DCTs, G_DCTs, B_DCTs = [], [], []
-    for i in xrange(R_Blocks.shape[0]):
-        R_DCTs.append([])
-        G_DCTs.append([])
-        B_DCTs.append([])
-        for j in xrange(R_Blocks.shape[1]):
-            # Add DCT Matrices to said array-friendly lists
-            R_DCTs[i].append(Calc_DCT(R_Blocks[i,j]))
-            G_DCTs[i].append(Calc_DCT(G_Blocks[i,j]))
-            B_DCTs[i].append(Calc_DCT(B_Blocks[i,j]))
-    # Convert to integer-only arrays when finished!
-    R_DCTs = array(R_DCTs,dtype='int')
-    G_DCTs = array(G_DCTs,dtype='int')
-    B_DCTs = array(B_DCTs,dtype='int')
+    R_DCTs = arraymap(Calc_DCT, R_Blocks, dtype=int, esize=2)
+    G_DCTs = arraymap(Calc_DCT, G_Blocks, dtype=int, esize=2)
+    B_DCTs = arraymap(Calc_DCT, B_Blocks, dtype=int, esize=2)
     t1 = time.clock()
     print "took",(t1-t0),"seconds."
-
+##    print '\n Sample before DCT:'
+##    print R_Blocks[0,0]
+##    print '\n Sample after DCT:'
+##    print R_DCTs[0,0]
+    # Each '_DCTs' variable should be an array of the DCTs of said 8x8 matrices
+    
     print "Quantizing data...",
     t0 = time.clock()
-    # Each '_DCTs' variable is now an array of 8x8 matricies, encompassing
-    # the entire image for that respective color.
     R_Quantized = Quantize(R_DCTs,q)
     G_Quantized = Quantize(G_DCTs,q)
     B_Quantized = Quantize(B_DCTs,q)
     t1 = time.clock()
     print "took",(t1-t0),"seconds."
-
+##    print 'R_Quantized\n',R_Quantized[0]
+##    print 'G_Quantized\n',G_Quantized[0]
+##    print 'B_Quantized\n',B_Quantized[0]
+    # Each '_Quantized' variable should be an array of lists of each DCT
+    # reorganized in a lossy, zigzag fashion
+    
+    print "Applying Run Length Algorithm...",
+    t0 = time.clock()
+    R_RunLen = arraymap(Run_Length, R_Quantized)
+    G_RunLen = arraymap(Run_Length, G_Quantized)
+    B_RunLen = arraymap(Run_Length, B_Quantized)
+    t1 = time.clock()
+    print "took",(t1-t0),"seconds."
+##    print 'R_Quantized\n',R_Quantized[0]
+##    print 'R_RunLen\n',R_RunLen[0],'\n'
+##    print 'G_Quantized\n',G_Quantized[0]
+##    print 'G_RunLen\n',G_RunLen[0],'\n'
+##    print 'B_Quantized\n',B_Quantized[0]   
+##    print 'B_RunLen\n',B_RunLen[0]
+    # Each '_RunLen' variable should be an array of compressed lists holding
+    # tuples of each value and the following number of zeroes
+    
     print "Applying Huffman codes..."
     t0 = time.clock()
-    R_Final = Huffman(R_Quantized)
-    G_Final = Huffman(G_Quantized)
-    B_Final = Huffman(B_Quantized)
+    R_Final = Huffman(R_RunLen)
+    G_Final = Huffman(G_RunLen)
+    B_Final = Huffman(B_RunLen)
     t1 = time.clock()
     print "took",(t1-t0),"seconds."
     
 ##    final_product = ?
 ##    return final_product
 
+#
+##
+### Stepping-stone functions:
+
 def Split_RGB(i):
     """Returns an R, G and B matrix."""
     R, G, B, Alpha = i.swapaxes(0,2)
     return (matrix(R), matrix(G), matrix(B))
 
-def Seperate_Color_Data2(i):
+def Split_YUV(i):
     """Returns a Y', U and V matrix. (Unused)"""
     # Establish conversion constants
     C = (.299, .587, .114, -.14713, -.28886, .436, .615, -.51499, -.10001)
@@ -177,9 +199,28 @@ def Quantize(A,Q):
             New[x].append(Zagg)
     return array(New)
 
+def Run_Length(values):
+    """Given a list of values, returns a list of tuples with non-zero
+    values and the number of zeroes that follow it in the original sequence"""
+    new_list = []
+    tup = [values[0],0]
+    v = 1
+    while v < len(values):
+        if values[v] != 0:
+            new_list.append(tuple(tup))
+            tup = [values[v],0]
+        else:
+            tup[1] += 1
+        v += 1
+    new_list.append(tuple(tup))
+    return new_list
+                
+def Huffman(argument):
+    raise NotImplementedError               
+
 #
 ##
-### Don't mind these, they're for debugging.
+### Debugging functions:
 
 def Test_DCT():
     UsersImage = array([
@@ -237,8 +278,39 @@ def Test_Quantize():
     print '\nCompare the following, the second being in zigzag order\n',DCT_Mid
     print QQ[0,0]
     print 'Ultimately, the important thing is the number of 0s.'
-    
-def Huffman(argument):
-    raise NotImplementedError
+
+def Test_Run_Length():
+    samplelist1 = [30, 0, -7, -12, -8, -1, 0, 1, 6, -5, -7, -3, 0, -1, 0, 0, 0, -1,
+                  0, -3, -4, -1, 4, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -3, 1, -1,
+                  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                  0, 0, 0, 0]
+    samplelist2 = [0, 0, -7, -12, -8, -1, 0, 1, 6, -5, -7, -3, 0, -1, 0, 0, 0, -1,
+                  0, -3, -4, -1, 4, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -3, 1, -1,
+                  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                  0, 0, 0, 0]
+    samplelist3 = [30, 0, -7, -12, -8, -1, 0, 1, 6, -5, -7, -3, 0, -1, 0, 0, 0, -1,
+                  0, -3, -4, -1, 4, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -3, 1, -1,
+                  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                  0, 0, 7, 0]
+    newlist1 = Run_Length(samplelist1)
+    newlist2 = Run_Length(samplelist2)
+    newlist3 = Run_Length(samplelist3)
+    print "Before:\n",samplelist1
+    print "After:\n",newlist1
+    print "No. Values Before:",len(samplelist1)
+    print "No. Values After:",(2*len(newlist1))
+    print '\n'
+    print "Before:\n",samplelist2
+    print "After:\n",newlist2
+    print "No. Values Before:",len(samplelist2)
+    print "No. Values After:",(2*len(newlist2))
+    print '\n'
+    print "Before:\n",samplelist3
+    print "After:\n",newlist3
+    print "No. Values Before:",len(samplelist3)
+    print "No. Values After:",(2*len(newlist3))
 
 main()
+#Test_DCT()
+#Test_Quantize()
+#Test_Run_Length()
