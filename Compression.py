@@ -313,7 +313,8 @@ def Test_Run_Length():
     print "No. Values Before:",len(samplelist3)
     print "No. Values After:",(2*len(newlist3))
 
-main()
-#Test_DCT()
-#Test_Quantize()
-#Test_Run_Length()
+if __name__ == "__main__":
+    main()
+    #Test_DCT()
+    #Test_Quantize()
+    #Test_Run_Length()
