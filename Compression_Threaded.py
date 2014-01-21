@@ -7,7 +7,7 @@
 
 """
 # Builtin libs
-import math, time
+import math, time, random
 from math import sqrt, cos, pi
 from threading import Thread, Lock
 
@@ -59,12 +59,17 @@ def Compress(i,q):
     quota = Quota(hh*ww*3)
     
     # Create a BlockThread for each 8x8 block in each color.
-    for w in xrange(3):
-        for y in xrange(ww):
-            for x in xrange(hh):
-                BlockThread(colors, w, x, y, q, quota).start()
-    while True:
-        raw_input('Ready for more?')
+    try:
+        for w in xrange(3):
+            for y in xrange(ww):
+                for x in xrange(hh):
+                    BlockThread(colors, w, x, y, q, quota).start()
+    finally:
+        e = "\n\n\nAccomplished:\n\n\n"
+        e += "w: "+str(w)+" out of 3.\n"
+        e += "y: "+str(y)+" out of "+str(ww)+".\n"
+        e += "x: "+str(x)+" out of "+str(hh)+".\n"
+        print e
 
 #
 ##
@@ -86,14 +91,12 @@ class BlockThread(Thread):
         self.quota = quota
 
     def run(self):
-        w, x, y = self.w, self.x, self.y
-        I_AM = '\n'+str((w,x,y))+' SAYS: '+str(type(self.block))+'\n'
-        print I_AM
-
+        """Threads currently sleep from somewhere between 0-10 seconds, then claim to be done."""
+        time.sleep(random.randint(0,10))
         # Time to tell everyone we're finished!
         self.quota.lock.acquire()
         try:
-            self.quota.all_done(w,x,y)
+            self.quota.all_done(self.w,self.x,self.y)
         finally:
             self.quota.lock.release()
             # Huzzah! Welcome to the party of finished threads!
@@ -149,6 +152,9 @@ class Quota(object):
             If they have, it then runs the final stretch of the program.
             Otherwise, nothing happens.
             Some error checking is thrown in, just in case something bizzare happens."""
+            # Debugging
+            s = "Out of "+str(self._quota)+", Arrived Guests: "+str(len(self.guest_list))
+            print s
 
             # Check to assure the guest has not already arrived
             if str((w,x,y)) in self.guest_list:
