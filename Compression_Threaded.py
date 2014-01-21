@@ -9,7 +9,7 @@
 # Builtin libs
 import math, time
 from math import sqrt, cos, pi
-from threading import Thread
+from threading import Thread, Lock
 
 # Required libs
 from numpy import matrix, array
@@ -46,71 +46,132 @@ def main():
 
 def Compress(i,q):
     """Returns a compressed version of the image.
-    The majority of this should be parallelized."""
-    # 'i' Should be an Length*Width*4 array of RGB color values
+    The majority of this should be parallelized.
+    'i' Should be a Length*Width*4 array of RGB color values.
+    'q' Should be the user-requested quality of the image."""
+
+    # Split the colors
+    colors = list(Split_RGB(i))
+
+    # Calculate the number of 8x8 blocks to-be and start a quota
+    hh = colors[0].shape[0]/8
+    ww = colors[0].shape[1]/8
+    quota = Quota(hh*ww*3)
     
-    F = [False, False, False]
-    Colors = list(Split_RGB(i))
-    ColorThread('R',Colors,F,0,q).start()
-    ColorThread('G',Colors,F,1,q).start()
-    ColorThread('B',Colors,F,2,q).start()
-    while (False in F):
-        pass
-    print "\nOkay, the threads have been run! Let's see what's in the basket..."+str(Colors)
+    # Create a BlockThread for each 8x8 block in each color.
+    for w in xrange(3):
+        for y in xrange(ww):
+            for x in xrange(hh):
+                BlockThread(colors, w, x, y, q, quota).start()
+    while True:
+        raw_input('Ready for more?')
 
 #
 ##
 ### Thread objects:
-class ColorThread(Thread):
+class BlockThread(Thread):
 
-    def __init__(self, name, basket, finished, spot, quality):
-        """A thread to be run for each color in an image.
-        'name' = The name of the thread.
-        'basket' = What file object the results are to be inserted into.
-        'finished' = A file object for confirming the thread has finished.
-        'spot' = The location of insertion into both aforementioned objects.
-        'quality' = The level of picture quality the user wishes preserved."""
-        Thread.__init__(self, name = name)
-        self.name = name
-        self.basket = basket
-        self.finished = finished
-        self.spot = spot
-        self.colordata = basket[spot]
-        self.q = quality
+    def __init__(self, colors, w, x, y, quality, quota):
+        """A thread to be run for each 8x8 block in an image.
+        'colors' = The almighty container for everything.
+        'w' = Which array in 'colors' data is copied to.
+        'x' = The x position of the 8x8 in the array.
+        'y' = The y position of the 8x8 in the array.
+        'quality' = The user-requested quality value.
+        'quota' = The Quota for reporting to when finished."""
+        Thread.__init__(self, name=str((w, x, y)))
+        self.block = colors[w][(x*8) : (x*8+8), (y*8) : (y*8+8)]
+        self.colors = colors
+        self.w, self.x, self.y, self.q = w, x, y, quality
+        self.quota = quota
 
     def run(self):
-        t0 = time.clock()
-        Blocks = Split_Blocks(self.colordata)
-        t1 = time.clock()
-        msg = str(self.name)+" took "+str(round(t1-t0,6))+" seconds to Split Blocks.\n"
-        print msg
+        w, x, y = self.w, self.x, self.y
+        I_AM = '\n'+str((w,x,y))+' SAYS: '+str(type(self.block))+'\n'
+        print I_AM
+
+        # Time to tell everyone we're finished!
+        self.quota.lock.acquire()
+        try:
+            self.quota.all_done(w,x,y)
+        finally:
+            self.quota.lock.release()
+            # Huzzah! Welcome to the party of finished threads!
         
-        t0 = time.clock()
-        DCT = arraymap(Calc_DCT, Blocks, dtype=int, esize=2)
-        t1 = time.clock()
-        msg = str(self.name)+" took "+str(round(t1-t0,6))+" seconds to calculate DCTs.\n"
-        print msg
-        
-        t0 = time.clock()
-        Q = Quantize(DCT, self.q)
-        t1 = time.clock()
-        msg = str(self.name)+" took "+str(round(t1-t0,6))+" seconds to Quantize.\n"
-        print msg
-        
-        t0 = time.clock()
-        RunLen = arraymap(Run_Length, Q)
-        t1 = time.clock()
-        msg = str(self.name)+" took "+str(round(t1-t0,6))+" seconds to apply RLE algorithms.\n"
-        print msg
-        
-        t0 = time.clock()
-        Final = Huffman(RunLen)
-        t1 = time.clock()
-        msg = str(self.name)+" took "+str(round(t1-t0,6))+" seconds to run Huffman Codes.\n"
-        print msg
-        
-        # The final line of this function should be:
-        self.finished[self.spot] = True
+
+##    def run(self):
+##        
+##        t0 = time.clock()
+##        Blocks = Split_Blocks(self.colordata)
+##        t1 = time.clock()
+##        msg = str(self.name)+" took "+str(round(t1-t0,6))+" seconds to Split Blocks.\n"
+##        print msg
+##        
+##        t0 = time.clock()
+##        DCT = arraymap(Calc_DCT, Blocks, dtype=int, esize=2)
+##        t1 = time.clock()
+##        msg = str(self.name)+" took "+str(round(t1-t0,6))+" seconds to calculate DCTs.\n"
+##        print msg
+##        
+##        t0 = time.clock()
+##        Q = Quantize(DCT, self.q)
+##        t1 = time.clock()
+##        msg = str(self.name)+" took "+str(round(t1-t0,6))+" seconds to Quantize.\n"
+##        print msg
+##        
+##        t0 = time.clock()
+##        RunLen = arraymap(Run_Length, Q)
+##        t1 = time.clock()
+##        msg = str(self.name)+" took "+str(round(t1-t0,6))+" seconds to apply RLE algorithms.\n"
+##        print msg
+##        
+##        t0 = time.clock()
+##        Final = Huffman(RunLen)
+##        t1 = time.clock()
+##        msg = str(self.name)+" took "+str(round(t1-t0,6))+" seconds to run Huffman Codes.\n"
+##        print msg
+##        
+##        # The final line of this function should be:
+##        self.finished[self.spot] = True
+
+#
+##
+### A Wild object Appeared!
+class Quota(object):
+        def __init__(self,limit):
+            self.lock = Lock()
+            self.guest_list = []
+            self._quota = limit
+
+        def all_done(self,w,x,y):
+            """A function to be called when a BlockThread has finished.
+            The idea is that this function checks if the other threads have finished yet.
+            If they have, it then runs the final stretch of the program.
+            Otherwise, nothing happens.
+            Some error checking is thrown in, just in case something bizzare happens."""
+
+            # Check to assure the guest has not already arrived
+            if str((w,x,y)) in self.guest_list:
+                # This will hopefully never pass
+                reason = "Somehow, ("+str(w)+', '+str(x)+', '+str(y)+") arrived to the party twice."
+                raise IndexError(reason)
+            
+            # Add the guest to the guest list
+            self.guest_list.append(str((w,x,y)))
+
+            # Check to assure the quota has not been exceeded
+            if len(self.guest_list) > self._quota:
+                reason = "Somehow, the guest_list has exceeded the quota..."
+                raise IndexError(reason)
+            
+            elif len(self.guest_list) == self._quota:
+                # I wasn't kidding when I said it runs the final stretch.
+                final_stretch()
+
+def final_stretch():
+    print "Show's over, everyone!"
+    print "We can all go home!"
+
 
 if __name__ == "__main__":
     main()
