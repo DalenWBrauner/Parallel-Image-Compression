@@ -1,6 +1,6 @@
 """
 .                                   .
-|   Compression.py                  |
+|   Compression_GPU.py              |
 |   Written by Dalen W. Brauner     |
 |   Status: Unfinished              |
 *                                   *
@@ -13,6 +13,10 @@ from math import sqrt, cos, pi
 # Required libs
 from numpy import matrix, array
 from scipy import ndimage as image
+
+# GPU libs
+import pycuda.autoinit
+import pycuda.gpuarray as gpuarray
 
 # Custom libs
 from array_handler import arraymap
