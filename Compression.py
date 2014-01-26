@@ -23,8 +23,8 @@ from array_handler import arraymap
 def main():
     print "What is the filename?"
     print "Win:"
-    print "C:\Users\Dalen\Desktop\winter-wallpaper-24.png"
-    print "C:\Users\Dalen\Desktop\\bird.png"
+    print "winter-wallpaper-24.png"
+    print "bird.png"
     print "Mint:"
     print "./winter-wallpaper-24.png"
     print "./bird.png"
@@ -82,7 +82,9 @@ def Compress(i,q):
 ##    print 'B_Quantized\n',B_Quantized[0]
     # Each '_Quantized' variable should be an array of lists of each DCT
     # reorganized in a lossy, zigzag fashion
-    
+
+    '''
+    Out with the old, in with the new!
     print "Applying Run Length Algorithm...",
     t0 = time.clock()
     R_RunLen = arraymap(Run_Length, R_Quantized)
@@ -112,6 +114,15 @@ def Compress(i,q):
     
 ##    final_product = ?
 ##    return final_product
+    '''
+
+    print "Applying Run Width Algorithm...",
+    t0 = time.clock()
+    R_RunW = arraymap(Run_Width, R_Quantized)
+    G_RunW = arraymap(Run_Width, G_Quantized)
+    B_RunW = arraymap(Run_Width, B_Quantized)
+    t1 = time.clock()
+    print "took",(t1-t0),"seconds."
 
 #
 ##
@@ -221,6 +232,45 @@ def Run_Length(values):
         v += 1
     new_list.append(tuple(tup))
     return new_list
+
+def Run_Width(values):
+    """Given a list of values, returns a string of those values as characters,
+    with the number of zeroes that follow each value as a character after.
+    (Values are re-incrimented by 128 for chr() compatibility.)"""
+    try:    width = chr(values[0] + 128)
+    except ValueError:
+        print '\n',values[0],values[0]+128
+        print values,'\n'
+        err = "Run_Width Error: " + str(values[0]+128) + " not chr()able."
+        return (False,err)
+                
+    v = 1
+    z = 0
+        
+    try:
+        while v < len(values):
+            val = values[v] + 128
+            if val == 128:
+                z += 1
+            else:
+                if z != 0:
+                    width += chr(128)
+                    width += chr(z)
+                    z = 0
+                width += chr(val)
+            v += 1
+        if z != 0:
+            width += chr(128)
+            width += chr(z)
+    except ValueError:
+        print width
+        print values[v],val
+        print values
+        err = "Run_Width Error: " + str(values[v]+128) + " not chr()able."
+        return (False,err)
+    
+    return width
+        
                 
 def Huffman(argument):
     raise NotImplementedError               
@@ -317,8 +367,68 @@ def Test_Run_Length():
     print "No. Values Before:",len(samplelist3)
     print "No. Values After:",(2*len(newlist3))
 
+def Test_Run_Width():
+    samplelist1 = [30, 0, -7, -12, -8, -1, 0, 1, 6, -5, -7, -3, 0, -1, 0, 0, 0, -1,
+                  0, -3, -4, -1, 4, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -3, 1, -1,
+                  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                  0, 0, 0, 0]
+    samplelist2 = [0, 0, -7, -12, -8, -1, 0, 1, 6, -5, -7, -3, 0, -1, 0, 0, 0, -1,
+                  0, -3, -4, -1, 4, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -3, 1, -1,
+                  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                  0, 0, 0, 0]
+    samplelist3 = [30, 0, -7, -12, -8, -1, 0, 1, 6, -5, -7, -3, 0, -1, 0, 0, 0, -1,
+                  0, -3, -4, -1, 4, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -3, 1, -1,
+                  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                  0, 0, 7, 0]
+    s1 = Run_Width(samplelist1)
+    s2 = Run_Width(samplelist2)
+    s3 = Run_Width(samplelist3)
+    
+    print samplelist1
+    print "Results in length",len(s1),"string:",s1
+    print "Which translates to:"
+    s = 0
+    while s < (len(s1)):
+        if ord(s1[s])-128 == 0:
+            s += 1
+            e = '0 '*ord(s1[s])
+            print e,
+        else:
+            print (ord(s1[s])-128),
+        s += 1
+    print '\n'
+    
+    print samplelist2
+    print "Results in length",len(s2),"string:",s2
+    print "Which translates to:"
+    s = 0
+    while s < (len(s2)):
+        if ord(s2[s])-128 == 0:
+            s += 1
+            e = '0 '*ord(s2[s])
+            print e,
+        else:
+            print (ord(s2[s])-128),
+        s += 1
+    print '\n'
+    
+    print samplelist3
+    print "Results in length",len(s3),"string:",s3
+    print "Which translates to:"
+    s = 0
+    while s < (len(s3)):
+        if ord(s3[s])-128 == 0:
+            s += 1
+            e = '0 '*ord(s3[s])
+            print e,
+        else:
+            print (ord(s3[s])-128),
+        s += 1
+    print '\n'
+
 if __name__ == "__main__":
-    main()
+    #main()
     #Test_DCT()
     #Test_Quantize()
     #Test_Run_Length()
+    Test_Run_Width()

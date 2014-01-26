@@ -27,8 +27,8 @@ from array_handler import arraymap
 def main():
     print "What is the filename?"
     print "Win:"
-    print "C:\Users\Dalen\Desktop\winter-wallpaper-24.png"
-    print "C:\Users\Dalen\Desktop\\bird.png"
+    print "winter-wallpaper-24.png"
+    print "bird.png"
     print "Mint:"
     print "./winter-wallpaper-24.png"
     print "./bird.png"

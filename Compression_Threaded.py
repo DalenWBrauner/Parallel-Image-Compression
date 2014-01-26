@@ -33,9 +33,13 @@ def IDLE_safety_hazard():
 
 def main():
     print "What is the filename?"
-    print "Hints:"
-    print "C:\Users\Dalen\Desktop\winter-wallpaper-24.png"
-    print "C:\Users\Dalen\Desktop\\bird.png"
+    print "Win:"
+    print "winter-wallpaper-24.png"
+    print "bird.png"
+    print "Mint:"
+    print "./winter-wallpaper-24.png"
+    print "./bird.png"
+    
     UsersImage = image.imread(raw_input(''))
     if (UsersImage.shape[0] %8 != 0) or (UsersImage.shape[1] %8 != 0):
         raise TypeError("Requires an image whose size is a multiple of 8x8!")
