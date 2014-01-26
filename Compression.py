@@ -387,7 +387,8 @@ def Test_Run_Width():
     print samplelist1
     print "Results in length",len(s1),"string:",s1
     print "Which translates to:"
-    s = 0
+    print ord(s1[0])-128,
+    s = 1
     while s < (len(s1)):
         if ord(s1[s])-128 == 0:
             s += 1
@@ -401,7 +402,8 @@ def Test_Run_Width():
     print samplelist2
     print "Results in length",len(s2),"string:",s2
     print "Which translates to:"
-    s = 0
+    print ord(s2[0])-128,
+    s = 1
     while s < (len(s2)):
         if ord(s2[s])-128 == 0:
             s += 1
@@ -415,7 +417,8 @@ def Test_Run_Width():
     print samplelist3
     print "Results in length",len(s3),"string:",s3
     print "Which translates to:"
-    s = 0
+    print ord(s3[0])-128,
+    s = 1
     while s < (len(s3)):
         if ord(s3[s])-128 == 0:
             s += 1
