@@ -83,39 +83,6 @@ def Compress(i,q):
     # Each '_Quantized' variable should be an array of lists of each DCT
     # reorganized in a lossy, zigzag fashion
 
-    '''
-    Out with the old, in with the new!
-    print "Applying Run Length Algorithm...",
-    t0 = time.clock()
-    R_RunLen = arraymap(Run_Length, R_Quantized)
-    G_RunLen = arraymap(Run_Length, G_Quantized)
-    B_RunLen = arraymap(Run_Length, B_Quantized)
-    t1 = time.clock()
-    print "took",(t1-t0),"seconds."
-##    print 'R_Quantized\n',R_Quantized[0]
-##    print 'R_RunLen\n',R_RunLen[0],'\n'
-##    print 'G_Quantized\n',G_Quantized[0]
-##    print 'G_RunLen\n',G_RunLen[0],'\n'
-##    print 'B_Quantized\n',B_Quantized[0]   
-##    print 'B_RunLen\n',B_RunLen[0]
-    # Each '_RunLen' variable should be an array of compressed lists holding
-    # tuples of each value and the following number of zeroes
-    
-    print "Applying Huffman codes..."
-    t0 = time.clock()
-    R_Final = Huffman(R_RunLen)
-    G_Final = Huffman(G_RunLen)
-    B_Final = Huffman(B_RunLen)
-    tf = t1 = time.clock()
-    print "took",(t1-t0),"seconds."
-
-    print "The image has been compressed!"
-    print "Hah, and it only took",(tf-ts),"seconds!"
-    
-##    final_product = ?
-##    return final_product
-    '''
-
     print "Applying Run Width Algorithm...",
     t0 = time.clock()
     R_RunW = arraymap(Run_Width, R_Quantized)
@@ -235,18 +202,11 @@ def Run_Length(values):
 
 def Run_Width(values):
     """Given a list of values, returns a string of those values as characters,
-    with the number of zeroes that follow each value as a character after.
-    (Values are re-incrimented by 128 for chr() compatibility.)"""
-    try:    width = chr(values[0] + 128)
-    except ValueError:
-        print '\n',values[0],values[0]+128
-        print values,'\n'
-        err = "Run_Width Error: " + str(values[0]+128) + " not chr()able."
-        return (False,err)
-                
-    v = 1
+    with the number of zeroes that follow each value as a character after."""
+    width = ''            
+    v = 0
     z = 0
-        
+    # Values are re-incrimented by 128 for chr() compatibility.
     try:
         while v < len(values):
             val = values[v] + 128
@@ -257,6 +217,10 @@ def Run_Width(values):
                     width += chr(128)
                     width += chr(z)
                     z = 0
+                # Values over 255 are treated as 'base-255 double digit' numbers.
+                while val >= 255:
+                    width += chr(255)
+                    val -= 255
                 width += chr(val)
             v += 1
         if z != 0:
@@ -267,9 +231,10 @@ def Run_Width(values):
         print values[v],val
         print values
         err = "Run_Width Error: " + str(values[v]+128) + " not chr()able."
-        return (False,err)
-    
-    return width
+        raise ValueError(err)
+
+    # chr(128)chr(128) corresponds to 'EOF'.
+    return width + chr(128) + chr(128)
         
                 
 def Huffman(argument):
@@ -290,9 +255,10 @@ def Test_DCT():
     [136, 156, 123, 167, 162, 144, 140, 147],
     [148, 155, 136, 155, 152, 147, 147, 136]
     ])
+    print UsersImage
     print Calc_DCT(UsersImage),'\n'
     
-    UsersImage2 = array([
+    UsersImage = array([
     [52, 55, 61,  66,  70,  61, 64, 73],
     [63, 59, 55,  90, 109,  85, 69, 72],
     [62, 59, 68, 113, 144, 104, 66, 73],
@@ -302,7 +268,21 @@ def Test_DCT():
     [85, 71, 64,  59,  55,  61, 65, 83],
     [87, 79, 69,  68,  65,  76, 78, 94]
     ])
-    print Calc_DCT(UsersImage2)
+    print UsersImage
+    print Calc_DCT(UsersImage),'\n'
+
+    UsersImage = array([
+    [100, 100, 100, 100, 100, 100, 100, 100],
+    [100, 100, 100, 100, 100, 100, 100, 100],
+    [100, 100, 100, 100, 100, 100, 100, 100],
+    [100, 100, 100, 100, 100, 100, 100, 100],
+    [100, 100, 100, 100, 100, 100, 100, 100],
+    [100, 100, 100, 100, 100, 100, 100, 100],
+    [100, 100, 100, 100, 100, 100, 100, 100],
+    [100, 100, 100, 100, 100, 100, 100, 100]
+    ])
+    print UsersImage
+    print Calc_DCT(UsersImage),'\n'
     
 def Test_Quantize():
     DCT_Before = matrix([
@@ -380,54 +360,53 @@ def Test_Run_Width():
                   0, -3, -4, -1, 4, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -3, 1, -1,
                   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                   0, 0, 7, 0]
+    samplelist4 = [414, -1, 156, -47, 0, 0, 0, 0, 0, -14, 22, 0, 0, 0, 0, 0, 0, 0,
+                   0, 0, -6, -9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0,
+                   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+                   0, 0, 0, 0]
     s1 = Run_Width(samplelist1)
     s2 = Run_Width(samplelist2)
     s3 = Run_Width(samplelist3)
+    s4 = Run_Width(samplelist4)
+
+    def decode(code):
+        """Decodes a Run_Width-encoded list"""
+        msg = '['
+        i = 0
+        
+        # AC Decoder
+        while (ord(code[i]) != 128) or (ord(code[i+1]) != 128):
+            if ord(code[i]) == 128:
+                i += 1
+                msg += '0, '*ord(code[i])
+            elif ord(code[i]) == 255:
+                n = 255
+                i += 1
+                while ord(code[i]) == 255:
+                    n += 255
+                    i += 1
+                msg += str(ord(code[i])-128+n)+', '
+            else:
+                msg += str(ord(code[i])-128)+', '
+            i += 1
+
+        return msg[:-2] + ']'
     
     print samplelist1
     print "Results in length",len(s1),"string:",s1
-    print "Which translates to:"
-    print ord(s1[0])-128,
-    s = 1
-    while s < (len(s1)):
-        if ord(s1[s])-128 == 0:
-            s += 1
-            e = '0 '*ord(s1[s])
-            print e,
-        else:
-            print (ord(s1[s])-128),
-        s += 1
-    print '\n'
+    print "Which translates to:\n",decode(s1),'\n'
     
     print samplelist2
     print "Results in length",len(s2),"string:",s2
-    print "Which translates to:"
-    print ord(s2[0])-128,
-    s = 1
-    while s < (len(s2)):
-        if ord(s2[s])-128 == 0:
-            s += 1
-            e = '0 '*ord(s2[s])
-            print e,
-        else:
-            print (ord(s2[s])-128),
-        s += 1
-    print '\n'
+    print "Which translates to:\n",decode(s2),'\n'
     
     print samplelist3
     print "Results in length",len(s3),"string:",s3
-    print "Which translates to:"
-    print ord(s3[0])-128,
-    s = 1
-    while s < (len(s3)):
-        if ord(s3[s])-128 == 0:
-            s += 1
-            e = '0 '*ord(s3[s])
-            print e,
-        else:
-            print (ord(s3[s])-128),
-        s += 1
-    print '\n'
+    print "Which translates to:\n",decode(s3),'\n'
+
+    print samplelist4
+    print "Results in length",len(s4),"string:",s4
+    print "Which translates to:\n",decode(s4),'\n'
 
 if __name__ == "__main__":
     #main()
