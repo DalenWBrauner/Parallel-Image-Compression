@@ -31,6 +31,7 @@ def main():
     
 def Decompress(data,filename):
     """Saves a decompressed version of the image."""
+    tt = 0
     
     print "Seperating Blocks...",
     t0 = time.clock()
@@ -39,18 +40,9 @@ def Decompress(data,filename):
     tt += (t1-t0)
     print "took",(t1-t0),"seconds."
     
-    print "Decoding Widths...",
-    t0 = time.clock()
-    R_Decoded = arraymap(Decode_Width, R)
-    G_Decoded = arraymap(Decode_Width, G)
-    B_Decoded = arraymap(Decode_Width, B)
-    t1 = time.clock()
-    tt += (t1-t0)
-    print "took",(t1-t0),"seconds."
-    
     print "De-Quantizing data...",
     t0 = time.clock()
-    R_DQ, G_DQ, B_DQ = map(DeQuantize, (R_Decoded, G_Decoded, B_Decoded))
+    R_DQ, G_DQ, B_DQ = map(DeQuantize, (R, G, B))
     t1 = time.clock()
     tt += (t1-t0)
     print "took",(t1-t0),"seconds."
@@ -88,8 +80,26 @@ def Decompress(data,filename):
 ### Stepping-stone functions:
 
 def Split_Blocks(data):
-    raise NotImplementedError
-    return Red, Blu, Grn
+    """Decodes and sections the data into 3 arrays of 8x8 blocks"""
+    # Setup
+    shape = ord(data[0]), ord(data[1])
+    code = data[2:].split( str(chr(128) + chr(128)) )
+    code.pop()      # This absolutely should not be necessary
+    split = [[[[] for w in xrange(shape[1])] for l in xrange(shape[0])] for c in xrange(3)]
+    pos = 0
+    # Gogogo
+    try:
+        for block in code:
+            decoded = Decode_Width(block + chr(128) + chr(128))
+            x = (pos / shape[1]) / shape[0]
+            y = (pos / shape[1]) % shape[0]
+            z =  pos % shape[1]
+            split[x][y][z] = decoded
+            pos += 1
+    except IndexError:
+        print pos
+        raise IndexError
+    return array(split)
 
 def DeQuantize(data):
     raise NotImplementedError

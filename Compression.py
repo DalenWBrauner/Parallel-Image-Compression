@@ -195,7 +195,7 @@ def Quantize(A,Q):
     for x in xrange(8):
         New.append([])
         for y in xrange(8):
-            # For every item in the 8x8 matrix, the respective quantized value is appended to Zag
+            # For each item in the 8x8, the respective quantized value is appended to Zag
             # This is done in 'zig-zag' order via the tuples in Zig
             M = A[x,y]
             Zag = []
@@ -268,6 +268,31 @@ def Write_To(Red, Grn, Blu, write):
     arraymap(write,Red)
     arraymap(write,Grn)
     arraymap(write,Blu)
+
+#
+##
+### Helper functions:
+
+def Decode_Width(code):
+    """Decodes a Run_Width-encoded list"""
+    msg = []
+    i = 0
+    while (ord(code[i]) != 128) or (ord(code[i+1]) != 128):
+        if ord(code[i]) == 128:
+            i += 1
+            for num in xrange(ord(code[i])): msg.append(0)
+        elif ord(code[i]) == 255:
+            n = 255
+            i += 1
+            while ord(code[i]) == 255:
+                n += 255
+                i += 1
+            msg.append(ord(code[i])-128+n)
+        else:
+            msg.append(ord(code[i])-128)
+        i += 1
+
+    return msg
 
 #
 ##
@@ -429,29 +454,6 @@ def Test_Run_Width():
     if samplelist4 != Decode_Width(s4):
         print "not",
     print "the same.)\n"
-
-def Decode_Width(code):
-    """Decodes a Run_Width-encoded list"""
-    msg = []
-    i = 0
-    
-    # AC Decoder
-    while (ord(code[i]) != 128) or (ord(code[i+1]) != 128):
-        if ord(code[i]) == 128:
-            i += 1
-            for num in xrange(ord(code[i])): msg.append(0)
-        elif ord(code[i]) == 255:
-            n = 255
-            i += 1
-            while ord(code[i]) == 255:
-                n += 255
-                i += 1
-            msg.append(ord(code[i])-128+n)
-        else:
-            msg.append(ord(code[i])-128)
-        i += 1
-
-    return msg
 
 if __name__ == "__main__":
     #main()
