@@ -7,7 +7,7 @@
 
 """
 # Builtin libs
-import math, time
+import time
 from math import sqrt, cos, pi
 
 # Required libs
@@ -35,17 +35,19 @@ def main():
     print "What level of image quality would you prefer? Please select an integer 1-25,"
     print "1 being the greatest image quality but least compressed."
     Quality = int(raw_input(''))
-    NewImage = Compress(UsersImage,Quality)
+    Compress(UsersImage,Quality)
 
 def Compress(i,q):
     """Returns a compressed version of the image.
     The majority of this should be parallelized."""
     # 'i' Should be an Length*Width*4 array of RGB color values
+    tt = 0
     
     print "Seperating Colors...",
-    ts = t0 = time.clock()
+    t0 = time.clock()
     Colors = Split_RGB(i)
     t1 = time.clock()
+    tt += (t1-t0)
     print "took",(t1-t0),"seconds."
     # 'Colors' should be a list of the Length*Width arrays for each color value
     
@@ -53,6 +55,7 @@ def Compress(i,q):
     t0 = time.clock()
     R_Blocks, G_Blocks, B_Blocks = map(Split_Blocks, Colors)
     t1 = time.clock()
+    tt += (t1-t0)
     print "took",(t1-t0),"seconds."
     # Each '_Blocks' variable should be an array of 8x8 matricies, each containing
     # the respective R, G or B pixel data for that 8x8 portion of the image
@@ -63,6 +66,7 @@ def Compress(i,q):
     G_DCTs = arraymap(Calc_DCT, G_Blocks, dtype=int, esize=2)
     B_DCTs = arraymap(Calc_DCT, B_Blocks, dtype=int, esize=2)
     t1 = time.clock()
+    tt += (t1-t0)
     print "took",(t1-t0),"seconds."
 ##    print '\n Sample before DCT:'
 ##    print R_Blocks[0,0]
@@ -76,6 +80,7 @@ def Compress(i,q):
     G_Quantized = Quantize(G_DCTs,q)
     B_Quantized = Quantize(B_DCTs,q)
     t1 = time.clock()
+    tt += (t1-t0)
     print "took",(t1-t0),"seconds."
 ##    print 'R_Quantized\n',R_Quantized[0]
 ##    print 'G_Quantized\n',G_Quantized[0]
@@ -89,7 +94,21 @@ def Compress(i,q):
     G_RunW = arraymap(Run_Width, G_Quantized)
     B_RunW = arraymap(Run_Width, B_Quantized)
     t1 = time.clock()
+    tt += (t1-t0)
     print "took",(t1-t0),"seconds."
+    # Each '_Quantized' variable should be an array of Run_Width() strings
+
+    print "Saving to file...",
+    t0 = time.clock()
+    f = open(str(time.time())+'.compressed','w')
+    Write_To(R_RunW, G_RunW, B_RunW, f.write)
+    f.close()
+    t1 = time.clock()
+    tt += (t1-t0)
+    print "took",(t1-t0),"seconds."
+
+    print "\nAll in all...",
+    print "everything took",tt,"seconds."
 
 #
 ##
@@ -200,6 +219,9 @@ def Run_Length(values):
     new_list.append(tuple(tup))
     return new_list
 
+def Huffman(argument):
+    raise NotImplementedError
+
 def Run_Width(values):
     """Given a list of values, returns a string of those values as characters,
     with the number of zeroes that follow each value as a character after."""
@@ -235,10 +257,16 @@ def Run_Width(values):
 
     # chr(128)chr(128) corresponds to 'EOF'.
     return width + chr(128) + chr(128)
-        
-                
-def Huffman(argument):
-    raise NotImplementedError               
+
+def Write_To(Red, Grn, Blu, write):
+    """Given RGB and a file's write function, writes appropriate headers and
+    the contents of the array to the file."""
+    L, W = Red.shape
+    write(chr(L))
+    write(chr(W))
+    arraymap(write,Red)
+    arraymap(write,Grn)
+    arraymap(write,Blu)
 
 #
 ##
@@ -368,49 +396,49 @@ def Test_Run_Width():
     s2 = Run_Width(samplelist2)
     s3 = Run_Width(samplelist3)
     s4 = Run_Width(samplelist4)
-
-    def decode(code):
-        """Decodes a Run_Width-encoded list"""
-        msg = '['
-        i = 0
-        
-        # AC Decoder
-        while (ord(code[i]) != 128) or (ord(code[i+1]) != 128):
-            if ord(code[i]) == 128:
-                i += 1
-                msg += '0, '*ord(code[i])
-            elif ord(code[i]) == 255:
-                n = 255
-                i += 1
-                while ord(code[i]) == 255:
-                    n += 255
-                    i += 1
-                msg += str(ord(code[i])-128+n)+', '
-            else:
-                msg += str(ord(code[i])-128)+', '
-            i += 1
-
-        return msg[:-2] + ']'
     
     print samplelist1
     print "Results in length",len(s1),"string:",s1
-    print "Which translates to:\n",decode(s1),'\n'
+    print "Which translates to:\n",Decode_Width(s1),'\n'
     
     print samplelist2
     print "Results in length",len(s2),"string:",s2
-    print "Which translates to:\n",decode(s2),'\n'
+    print "Which translates to:\n",Decode_Width(s2),'\n'
     
     print samplelist3
     print "Results in length",len(s3),"string:",s3
-    print "Which translates to:\n",decode(s3),'\n'
+    print "Which translates to:\n",Decode_Width(s3),'\n'
 
     print samplelist4
     print "Results in length",len(s4),"string:",s4
-    print "Which translates to:\n",decode(s4),'\n'
+    print "Which translates to:\n",Decode_Width(s4),'\n'
+
+def Decode_Width(code):
+    """Decodes a Run_Width-encoded list"""
+    msg = '['
+    i = 0
+    
+    # AC Decoder
+    while (ord(code[i]) != 128) or (ord(code[i+1]) != 128):
+        if ord(code[i]) == 128:
+            i += 1
+            msg += '0, '*ord(code[i])
+        elif ord(code[i]) == 255:
+            n = 255
+            i += 1
+            while ord(code[i]) == 255:
+                n += 255
+                i += 1
+            msg += str(ord(code[i])-128+n)+', '
+        else:
+            msg += str(ord(code[i])-128)+', '
+        i += 1
+
+    return msg[:-2] + ']'
 
 if __name__ == "__main__":
-    #main()
+    main()
     #Test_DCT()
     #Test_Quantize()
     #Test_Run_Length()
-    Test_Run_Width()
+    #Test_Run_Width()
