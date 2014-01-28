@@ -192,9 +192,9 @@ def Quantize(A,Q):
            (7,7)]
     # Creates a list to be returned as the new array
     New = []
-    for x in xrange(8):
+    for x in xrange(A.shape[0]):
         New.append([])
-        for y in xrange(8):
+        for y in xrange(A.shape[1]):
             # For each item in the 8x8, the respective quantized value is appended to Zag
             # This is done in 'zig-zag' order via the tuples in Zig
             M = A[x,y]
@@ -310,7 +310,8 @@ def Test_DCT():
     [148, 155, 136, 155, 152, 147, 147, 136]
     ])
     print UsersImage
-    print Calc_DCT(UsersImage),'\n'
+    print Calc_DCT(UsersImage)
+    print Calc_DCT(Calc_DCT(UsersImage)),'\n'
     
     UsersImage = array([
     [52, 55, 61,  66,  70,  61, 64, 73],
@@ -323,7 +324,8 @@ def Test_DCT():
     [87, 79, 69,  68,  65,  76, 78, 94]
     ])
     print UsersImage
-    print Calc_DCT(UsersImage),'\n'
+    print Calc_DCT(UsersImage)
+    print Calc_DCT(Calc_DCT(UsersImage)),'\n'
 
     UsersImage = array([
     [100, 100, 100, 100, 100, 100, 100, 100],
@@ -336,7 +338,8 @@ def Test_DCT():
     [100, 100, 100, 100, 100, 100, 100, 100]
     ])
     print UsersImage
-    print Calc_DCT(UsersImage),'\n'
+    print Calc_DCT(UsersImage)
+    print Calc_DCT(Calc_DCT(UsersImage)),'\n'
     
 def Test_Quantize():
     DCT_Before = matrix([
@@ -365,10 +368,12 @@ def Test_Quantize():
         for j in xrange(8):
             DCT_After[i,j] *= Qtrx[i,j]
     print '\n',DCT_After
-    QQ = Quantize(array([[DCT_Before for x in xrange(8)] for x in xrange(8)]), 2)
+    QQ = Quantize(array([[DCT_Before for x in xrange(11)] for x in xrange(11)]), 2)
     print '\nCompare the following, the second being in zigzag order\n',DCT_Mid
     print QQ[0,0]
     print 'Ultimately, the important thing is the number of 0s.'
+
+    print '\n',QQ[9,9]
 
 def Test_Run_Length():
     samplelist1 = [30, 0, -7, -12, -8, -1, 0, 1, 6, -5, -7, -3, 0, -1, 0, 0, 0, -1,
@@ -456,8 +461,8 @@ def Test_Run_Width():
     print "the same.)\n"
 
 if __name__ == "__main__":
-    #main()
+    main()
     #Test_DCT()
     #Test_Quantize()
     #Test_Run_Length()
-    Test_Run_Width()
+    #Test_Run_Width()

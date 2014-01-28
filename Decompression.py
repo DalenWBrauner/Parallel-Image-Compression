@@ -25,11 +25,12 @@ def main():
     if filename[-11:] != '.compressed':
         raise TypeError("Requires a .compressed file from Compression.py!")
     f = open(filename,'r')
-    Data = f.read()
+    data = f.read()
     f.close()
-    Decompress(Data,filename[:-11])
+    quality = raw_input("And what was the quality of compression? ")
+    Decompress(data,filename[:-11],quality)
     
-def Decompress(data,filename):
+def Decompress(data,filename,quality):
     """Saves a decompressed version of the image."""
     tt = 0
     
@@ -42,7 +43,9 @@ def Decompress(data,filename):
     
     print "De-Quantizing data...",
     t0 = time.clock()
-    R_DQ, G_DQ, B_DQ = map(DeQuantize, (R, G, B))
+    R_DQ = DeQuantize(R,quality)
+    G_DQ = DeQuantize(G,quality)
+    B_DQ = DeQuantize(B,quality)
     t1 = time.clock()
     tt += (t1-t0)
     print "took",(t1-t0),"seconds."
@@ -101,9 +104,19 @@ def Split_Blocks(data):
         raise IndexError
     return array(split)
 
-def DeQuantize(data):
+def DeQuantize(data,Q):
+    """Given a numpy array of zig-zagged and quantized lists "data" and quality level "Q",
+    returns a numpy array of the same values in 8x8 matrices."""
+    # Establishes the Quality Matrix and the Zigzag pattern
+    Qtrx = matrix([[(1 + (x + y + 1)*Q) for x in xrange(8)] for y in xrange(8)])
+    Zig = [(0,0),(0,1),(1,0),(2,0),(1,1),(0,2),(0,3),(1,2),(2,1),(3,0),
+           (4,0),(3,1),(2,2),(1,3),(0,4),(0,5),(1,4),(2,3),(3,2),(4,1),(5,0),
+           (6,0),(5,1),(4,2),(3,3),(2,4),(1,5),(0,6),(0,7),(1,6),(2,5),(3,4),(4,3),(5,2),(6,1),
+           (7,0),(7,1),(6,2),(5,3),(4,4),(3,5),(2,6),(1,7),(2,7),(3,6),(4,5),(5,4),(6,3),(7,2),
+           (7,3),(6,4),(5,5),(4,6),(3,7),(4,7),(5,6),(6,5),(7,4),(7,5),(6,6),(5,7),(6,7),(7,6),
+           (7,7)]
     raise NotImplementedError
-    return Red, Blu, Grn
+    return 
 
 def Merge_Blocks(data):
     raise NotImplementedError
