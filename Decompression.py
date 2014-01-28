@@ -28,17 +28,17 @@ def main():
     Data = f.read()
     f.close()
     Decompress(Data,filename[:-11])
-
+    
 def Decompress(data,filename):
     """Saves a decompressed version of the image."""
-
+    
     print "Seperating Blocks...",
     t0 = time.clock()
     R, G, B = Split_Blocks(data)
     t1 = time.clock()
     tt += (t1-t0)
     print "took",(t1-t0),"seconds."
-
+    
     print "Decoding Widths...",
     t0 = time.clock()
     R_Decoded = arraymap(Decode_Width, R)
@@ -54,7 +54,7 @@ def Decompress(data,filename):
     t1 = time.clock()
     tt += (t1-t0)
     print "took",(t1-t0),"seconds."
-
+    
     print "Calculating DCTs...",
     t0 = time.clock()
     R_DCTs = arraymap(Calc_DCT, R_DQ, dtype=int, esize=2)
@@ -63,21 +63,21 @@ def Decompress(data,filename):
     t1 = time.clock()
     tt += (t1-t0)
     print "took",(t1-t0),"seconds."
-
+    
     print "Merging 8x8 blocks...",
     t0 = time.clock()
     R_Merged, G_Merged, B_Merged = map(Merge_Blocks, (R_DCTs, G_DCTs, B_DCTs))
     t1 = time.clock()
     tt += (t1-t0)
     print "took",(t1-t0),"seconds."
-
+    
     print "Rearranging Data...",
     t0 = time.clock()
     final_array = array([R_Merged, G_Merged, B_Merged]).swapaxes(0,2)
     t1 = time.clock()
     tt += (t1-t0)
     print "took",(t1-t0),"seconds."
-
+    
     misc.imsave(filename,final_array)
     print "\nAll in all...",
     print "everything took",tt,"seconds."
@@ -88,15 +88,15 @@ def Decompress(data,filename):
 ### Stepping-stone functions:
 
 def Split_Blocks(data):
-    raise NotImplementedError    
+    raise NotImplementedError
     return Red, Blu, Grn
 
 def DeQuantize(data):
-    raise NotImplementedError    
+    raise NotImplementedError
     return Red, Blu, Grn
 
 def Merge_Blocks(data):
-    raise NotImplementedError    
+    raise NotImplementedError
     return Red, Blu, Grn
 
 #
