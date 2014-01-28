@@ -2,7 +2,7 @@
 .                                   .
 |   Compression.py                  |
 |   Written by Dalen W. Brauner     |
-|   Status: Unfinished              |
+|   Status: "Finished"              |
 *                                   *
 
 """
