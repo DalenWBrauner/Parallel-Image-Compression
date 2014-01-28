@@ -38,7 +38,7 @@ def main():
     Compress(UsersImage,Quality)
 
 def Compress(i,q):
-    """Returns a compressed version of the image.
+    """Saves a compressed version of the image.
     The majority of this should be parallelized."""
     # 'i' Should be an Length*Width*4 array of RGB color values
     tt = 0
@@ -106,6 +106,7 @@ def Compress(i,q):
     t1 = time.clock()
     tt += (t1-t0)
     print "took",(t1-t0),"seconds."
+    # Hark! Our file hath been saved!
 
     print "\nAll in all...",
     print "everything took",tt,"seconds."
@@ -399,46 +400,62 @@ def Test_Run_Width():
     
     print samplelist1
     print "Results in length",len(s1),"string:",s1
-    print "Which translates to:\n",Decode_Width(s1),'\n'
+    print "Which translates to:\n",Decode_Width(s1)
+    print "(They are",
+    if samplelist1 != Decode_Width(s1):
+        print "not",
+    print "the same.)\n"
     
     print samplelist2
     print "Results in length",len(s2),"string:",s2
-    print "Which translates to:\n",Decode_Width(s2),'\n'
+    print "Which translates to:\n",Decode_Width(s2)
+    print "(They are",
+    if samplelist2 != Decode_Width(s2):
+        print "not",
+    print "the same.)\n"
     
     print samplelist3
     print "Results in length",len(s3),"string:",s3
-    print "Which translates to:\n",Decode_Width(s3),'\n'
+    print "Which translates to:\n",Decode_Width(s3)
+    print "(They are",
+    if samplelist3 != Decode_Width(s3):
+        print "not",
+    print "the same.)\n"
 
     print samplelist4
     print "Results in length",len(s4),"string:",s4
-    print "Which translates to:\n",Decode_Width(s4),'\n'
+    print "Which translates to:\n",Decode_Width(s4)
+    print "(They are",
+    if samplelist4 != Decode_Width(s4):
+        print "not",
+    print "the same.)\n"
 
 def Decode_Width(code):
     """Decodes a Run_Width-encoded list"""
-    msg = '['
+    msg = []
     i = 0
     
     # AC Decoder
     while (ord(code[i]) != 128) or (ord(code[i+1]) != 128):
         if ord(code[i]) == 128:
             i += 1
-            msg += '0, '*ord(code[i])
+            for num in xrange(ord(code[i])): msg.append(0)
         elif ord(code[i]) == 255:
             n = 255
             i += 1
             while ord(code[i]) == 255:
                 n += 255
                 i += 1
-            msg += str(ord(code[i])-128+n)+', '
+            msg.append(ord(code[i])-128+n)
         else:
-            msg += str(ord(code[i])-128)+', '
+            msg.append(ord(code[i])-128)
         i += 1
 
-    return msg[:-2] + ']'
+    return msg
 
 if __name__ == "__main__":
-    main()
+    #main()
     #Test_DCT()
     #Test_Quantize()
     #Test_Run_Length()
-    #Test_Run_Width()
+    Test_Run_Width()
