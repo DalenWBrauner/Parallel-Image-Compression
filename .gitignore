@@ -220,4 +220,5 @@ pip-log.txt
 #############
 
 *.png
+*.jpg
 *.compressed

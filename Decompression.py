@@ -107,16 +107,24 @@ def Split_Blocks(data):
 def DeQuantize(data,Q):
     """Given a numpy array of zig-zagged and quantized lists "data" and quality level "Q",
     returns a numpy array of the same values in 8x8 matrices."""
-    # Establishes the Quality Matrix and the Zigzag pattern
-    Qtrx = matrix([[(1 + (x + y + 1)*Q) for x in xrange(8)] for y in xrange(8)])
-    Zig = [(0,0),(0,1),(1,0),(2,0),(1,1),(0,2),(0,3),(1,2),(2,1),(3,0),
-           (4,0),(3,1),(2,2),(1,3),(0,4),(0,5),(1,4),(2,3),(3,2),(4,1),(5,0),
-           (6,0),(5,1),(4,2),(3,3),(2,4),(1,5),(0,6),(0,7),(1,6),(2,5),(3,4),(4,3),(5,2),(6,1),
-           (7,0),(7,1),(6,2),(5,3),(4,4),(3,5),(2,6),(1,7),(2,7),(3,6),(4,5),(5,4),(6,3),(7,2),
-           (7,3),(6,4),(5,5),(4,6),(3,7),(4,7),(5,6),(6,5),(7,4),(7,5),(6,6),(5,7),(6,7),(7,6),
-           (7,7)]
+##    # Establishes the Quality Matrix and the Zigzag pattern
+##    Qtrx = matrix([[(1 + (x + y + 1)*Q) for x in xrange(8)] for y in xrange(8)])
+##    Zig = [(0,0),(0,1),(1,0),(2,0),(1,1),(0,2),(0,3),(1,2),(2,1),(3,0),
+##           (4,0),(3,1),(2,2),(1,3),(0,4),(0,5),(1,4),(2,3),(3,2),(4,1),(5,0),
+##           (6,0),(5,1),(4,2),(3,3),(2,4),(1,5),(0,6),(0,7),(1,6),(2,5),(3,4),(4,3),(5,2),(6,1),
+##           (7,0),(7,1),(6,2),(5,3),(4,4),(3,5),(2,6),(1,7),(2,7),(3,6),(4,5),(5,4),(6,3),(7,2),
+##           (7,3),(6,4),(5,5),(4,6),(3,7),(4,7),(5,6),(6,5),(7,4),(7,5),(6,6),(5,7),(6,7),(7,6),
+##           (7,7)]
+##    # Unzigzaggs the list into a matrix
+##    for tup in Zig:
+##        
+##
+##    # For each item in the matrix, multiplies it by its quantized counterpart
+##    for i in xrange(8):
+##        for j in xrange(8):
+##            DCT_After[i,j] *= Qtrx[i,j]
     raise NotImplementedError
-    return 
+##    return 
 
 def Merge_Blocks(data):
     raise NotImplementedError

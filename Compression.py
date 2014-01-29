@@ -244,6 +244,10 @@ def Run_Width(values):
                 while val >= 255:
                     width += chr(255)
                     val -= 255
+                # Negative Values are treated similarly, but in the opposite directon.
+                while val <= 0:
+                    width += chr(0)
+                    val += 255
                 width += chr(val)
             v += 1
         if z != 0:
@@ -286,6 +290,13 @@ def Decode_Width(code):
             i += 1
             while ord(code[i]) == 255:
                 n += 255
+                i += 1
+            msg.append(ord(code[i])-128+n)
+        elif ord(code[i]) == 0:
+            n = -255
+            i += 1
+            while ord(code[i]) == 255:
+                n -= 255
                 i += 1
             msg.append(ord(code[i])-128+n)
         else:
@@ -423,10 +434,15 @@ def Test_Run_Width():
                    0, 0, -6, -9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0,
                    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                    0, 0, 0, 0]
+    samplelist5 = [389, -12, -153, -27, 1, -8, -8, -5, 15, 19, 5, 5, 1, -6, 0, 7, 0,
+                   0, 4, -10, -7, -4, -9, 4, 3, -2, 3, 1, -4, 2, -4, -2, 3, 0, 1, 1,
+                   6, -1, 2, 0, -4, 1, 0, 6, 0, 0, 2, 1, -1, 0, 3, 2, -1, 4, -2, -2,
+                   0, 2, -1, -2, -5, -2, -1, 0]
     s1 = Run_Width(samplelist1)
     s2 = Run_Width(samplelist2)
     s3 = Run_Width(samplelist3)
     s4 = Run_Width(samplelist4)
+    s5 = Run_Width(samplelist5)
     
     print samplelist1
     print "Results in length",len(s1),"string:",s1
@@ -457,6 +473,14 @@ def Test_Run_Width():
     print "Which translates to:\n",Decode_Width(s4)
     print "(They are",
     if samplelist4 != Decode_Width(s4):
+        print "not",
+    print "the same.)\n"
+
+    print samplelist5
+    print "Results in length",len(s5),"string:",s5
+    print "Which translates to:\n",Decode_Width(s5)
+    print "(They are",
+    if samplelist5 != Decode_Width(s5):
         print "not",
     print "the same.)\n"
 
