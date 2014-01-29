@@ -295,7 +295,7 @@ def Decode_Width(code):
         elif ord(code[i]) == 0:
             n = -255
             i += 1
-            while ord(code[i]) == 255:
+            while ord(code[i]) == 0:
                 n -= 255
                 i += 1
             msg.append(ord(code[i])-128+n)
