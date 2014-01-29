@@ -485,8 +485,8 @@ def Test_Run_Width():
     print "the same.)\n"
 
 if __name__ == "__main__":
-    main()
+    #main()
     #Test_DCT()
-    #Test_Quantize()
+    Test_Quantize()
     #Test_Run_Length()
     #Test_Run_Width()

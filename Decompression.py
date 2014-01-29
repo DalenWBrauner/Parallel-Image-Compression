@@ -27,7 +27,7 @@ def main():
     f = open(filename,'r')
     data = f.read()
     f.close()
-    quality = raw_input("And what was the quality of compression? ")
+    quality = input("And what was the quality of compression? ")
     Decompress(data,filename[:-11],quality)
     
 def Decompress(data,filename,quality):
@@ -98,6 +98,7 @@ def Split_Blocks(data):
             y = (pos / shape[1]) % shape[0]
             z =  pos % shape[1]
             split[x][y][z] = decoded
+            #split[x][y][z] = tuple(decoded)
             pos += 1
     except IndexError:
         print pos
@@ -107,24 +108,35 @@ def Split_Blocks(data):
 def DeQuantize(data,Q):
     """Given a numpy array of zig-zagged and quantized lists "data" and quality level "Q",
     returns a numpy array of the same values in 8x8 matrices."""
-##    # Establishes the Quality Matrix and the Zigzag pattern
-##    Qtrx = matrix([[(1 + (x + y + 1)*Q) for x in xrange(8)] for y in xrange(8)])
-##    Zig = [(0,0),(0,1),(1,0),(2,0),(1,1),(0,2),(0,3),(1,2),(2,1),(3,0),
-##           (4,0),(3,1),(2,2),(1,3),(0,4),(0,5),(1,4),(2,3),(3,2),(4,1),(5,0),
-##           (6,0),(5,1),(4,2),(3,3),(2,4),(1,5),(0,6),(0,7),(1,6),(2,5),(3,4),(4,3),(5,2),(6,1),
-##           (7,0),(7,1),(6,2),(5,3),(4,4),(3,5),(2,6),(1,7),(2,7),(3,6),(4,5),(5,4),(6,3),(7,2),
-##           (7,3),(6,4),(5,5),(4,6),(3,7),(4,7),(5,6),(6,5),(7,4),(7,5),(6,6),(5,7),(6,7),(7,6),
-##           (7,7)]
-##    # Unzigzaggs the list into a matrix
-##    for tup in Zig:
-##        
-##
-##    # For each item in the matrix, multiplies it by its quantized counterpart
-##    for i in xrange(8):
-##        for j in xrange(8):
-##            DCT_After[i,j] *= Qtrx[i,j]
-    raise NotImplementedError
-##    return 
+    # Establishes the Quality Matrix and the Zigzag pattern
+    Qtrx = matrix([[(1 + (x + y + 1)*Q) for x in xrange(8)] for y in xrange(8)])
+    Zig = [(0,0),(0,1),(1,0),(2,0),(1,1),(0,2),(0,3),(1,2),(2,1),(3,0),
+           (4,0),(3,1),(2,2),(1,3),(0,4),(0,5),(1,4),(2,3),(3,2),(4,1),(5,0),
+           (6,0),(5,1),(4,2),(3,3),(2,4),(1,5),(0,6),(0,7),(1,6),(2,5),(3,4),(4,3),(5,2),(6,1),
+           (7,0),(7,1),(6,2),(5,3),(4,4),(3,5),(2,6),(1,7),(2,7),(3,6),(4,5),(5,4),(6,3),(7,2),
+           (7,3),(6,4),(5,5),(4,6),(3,7),(4,7),(5,6),(6,5),(7,4),(7,5),(6,6),(5,7),(6,7),(7,6),
+           (7,7)]
+    # Create a new array
+    New = []
+    # Unzigzaggs the list into a matrix
+    for x in xrange(data.shape[0]):
+        New.append([])
+        for y in xrange(data.shape[1]):
+            M = ([[0 for a in xrange(8)] for b in xrange(8)])
+            for t in xrange(len(Zig)):
+                Z0 = Zig[t][0]
+                Z1 = Zig[t][1]
+                try:
+                    M[ Z0 ][ Z1 ] = data[x,y][t] * (Qtrx[ Z0 , Z1 ])
+                except IndexError:
+                    print '\nt:',t
+                    print '\nx:',x
+                    print '\ny:',y
+                    print '\ndata[x]:',data[x]
+                    print '\ndata[x,y]:',data[x,y]
+                    print '\ndata[x,y][t]:',data[x,y][t]
+            New[x].append(M)
+    return array(New)
 
 def Merge_Blocks(data):
     raise NotImplementedError
@@ -134,5 +146,18 @@ def Merge_Blocks(data):
 ##
 ### Debugging functions:
 
+def Test_DeQuantize():
+    Before = [30, 0, -7, -12, -8, -1, 0, 1, 6, -5, -7, -3, 0, -1, 0, 0, 0, -1, 0, -3, -4, -1,
+              4, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -3, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    arr = array([[Before for x in xrange(11)] for x in xrange(11)])
+    DQ = DeQuantize(arr,2)
+    print '\nCompare the following, the first being in zigzag order\n',Before
+    Qtrx = matrix([[(1 + (x + y + 1)*2) for x in xrange(8)] for y in xrange(8)])
+    print Qtrx
+
+    print '\n',DQ[9,9]
+
 if __name__ == "__main__":
     main()
+    #Test_DeQuantize()
