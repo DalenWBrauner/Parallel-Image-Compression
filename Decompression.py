@@ -93,7 +93,9 @@ def Split_Blocks(data):
     # Gogogo
     try:
         for block in code:
+            print block
             decoded = Decode_Width(block + chr(128) + chr(128))
+            print decoded
             x = (pos / shape[1]) / shape[0]
             y = (pos / shape[1]) % shape[0]
             z =  pos % shape[1]
