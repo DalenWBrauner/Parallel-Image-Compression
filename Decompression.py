@@ -94,13 +94,12 @@ def Split_Blocks(data):
     """Decodes and sections the data into 3 arrays of 8x8 blocks"""
     shape = ord(data[0]), ord(data[1])
     code = data[2:].split( str(chr(128) + chr(128)) )
+    code.pop()
     split = [[[[] for w in xrange(shape[1])] for l in xrange(shape[0])] for c in xrange(3)]
     pos = 0
     try:
         for block in code:
-            print block
             decoded = Decode_Width(block)
-            print decoded
             x = (pos / shape[1]) / shape[0]
             y = (pos / shape[1]) % shape[0]
             z =  pos % shape[1]
@@ -136,9 +135,10 @@ def DeQuantize(data,Q):
                 try:
                     M[ Z0 ][ Z1 ] = data[x,y][t] * (Qtrx[ Z0 , Z1 ])
                 except IndexError:
-                    print '\nt:',t
-                    print '\nx:',x
-                    print '\ny:',y
+                    print '\nshape',data.shape
+                    print 'x:',x
+                    print 'y:',y
+                    print 't:',t
                     print '\ndata[x]:',data[x]
                     print '\ndata[x,y]:',data[x,y]
                     print '\ndata[x,y][t]:',data[x,y][t]
