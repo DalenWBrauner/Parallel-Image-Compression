@@ -134,7 +134,6 @@ def Split_Blocks(data):
             y = (pos / shape[1]) % shape[0]
             z =  pos % shape[1]
             split[x][y][z] = decoded
-            #split[x][y][z] = tuple(decoded)
             pos += 1
     except IndexError:
         print pos

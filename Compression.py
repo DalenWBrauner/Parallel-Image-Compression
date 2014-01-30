@@ -245,34 +245,46 @@ def Huffman(argument):
 
 def Run_Width(values):
     """Given a list of values, returns a string of those values as characters,
-    with the number of zeroes that follow each value as a character after."""
+    with the number of zeroes that follow each value as a character after.
+    Values are re-incrimented by 128 so the majority of values are chr()-
+    -compatable."""
     width = ''            
     v = 0
     z = 0
-    # Values are re-incrimented by 128 for chr() compatibility.
     try:
         while v < len(values):
             val = values[v] + 128
             if val == 128:
                 z += 1
             else:
+                # Add zeroes-character before adding other characters
                 if z != 0:
                     width += chr(128)
                     width += chr(z)
                     z = 0
-                # Values over 255 are treated as 'base-255 double digit' numbers.
-                while val >= 255:
-                    width += chr(255)
-                    val -= 255
-                # Negative Values are treated similarly, but in the opposite directon.
-                while val <= 0:
-                    width += chr(0)
-                    val += 255
+
+                # Check if the value is out of range, and continue
+                # to add the appropriate character and amount to the
+                # value until it is finally in range.
+                if val >= 255:
+                    while val >= 255:
+                        width += chr(255)
+                        val -= 255
+                elif val <= 0:
+                    while val <= 0:
+                        width += chr(0)
+                        val += 255
+
+                # Finally: Add the character.
                 width += chr(val)
             v += 1
+
+        # If there are still zeroes to account for after exiting the loop...
         if z != 0:
             width += chr(128)
             width += chr(z)
+
+    # Just in case something went wrong:
     except ValueError:
         print width
         print values[v],val

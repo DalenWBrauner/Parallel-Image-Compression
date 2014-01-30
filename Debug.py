@@ -6,7 +6,14 @@ from array_handler import arraymap
 from Compression import *
 from Decompression import *
 
+#
+##
+###
+####
+##### Compression.py
+
 def Test_DCT():
+    print 'Test_DCT()\n'
     UsersImage = array([
     [140, 144, 147, 140, 140, 155, 179, 175],
     [144, 152, 140, 147, 140, 148, 167, 179],
@@ -50,6 +57,7 @@ def Test_DCT():
     print Calc_DCT(Calc_DCT(UsersImage)),'\n'
     
 def Test_Quantize():
+    print 'Test_Quantize()\n'
     DCT_Before = matrix([
     [ 92,   3,  -9,  -7,   3, -1,  0,  2],
     [-39, -58,  12, -17,  -2,  2,  4,  2],
@@ -83,6 +91,7 @@ def Test_Quantize():
     print 'This is the sample at [9,9]:\n',QQ[9,9]
 
 def Test_Run_Length():
+    print 'Test_Run_Length()\n'
     samplelist1 = [30, 0, -7, -12, -8, -1, 0, 1, 6, -5, -7, -3, 0, -1, 0, 0, 0, -1,
                   0, -3, -4, -1, 4, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -3, 1, -1,
                   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -114,6 +123,7 @@ def Test_Run_Length():
     print "No. Values After:",(2*len(newlist3))
 
 def Test_Run_Width():
+    print 'Test_Run_Width()\n'
     def test(sample):
         Ws = Run_Width(sample)
         Ds = Decode_Width(Ws)
@@ -171,7 +181,14 @@ def Test_Run_Width():
                sam13, sam14, sam15, sam16)
     map(test, samples)
 
+#
+##
+###
+####
+##### Decompression.py
+
 def Test_DeQuantize():
+    print 'Test_DeQuantize()\n'
     Before = [30, 0, -7, -12, -8, -1, 0, 1, 6, -5, -7, -3, 0, -1, 0, 0, 0, -1, 0, -3, -4, -1,
               4, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -3, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
               0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
