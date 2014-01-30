@@ -17,6 +17,15 @@ def arraymap_r(r,function,sequence,esize):
             new_sequence.append(arraymap_r(r-1,function,element,esize))
     else:
         for element in sequence:
-            new_sequence.append(function(element))
+            try:
+                new_sequence.append(function(element))
+            except:
+                print '\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n'
+                print 'Hey, array_handler here! Just debuggin. How are you?'
+                raw_input('')
+                print 'Rhetorical Question.'
+                print 'function\n',function
+                print 'element\n',element
+                print 'function(element)\n',function(element)
     
     return new_sequence

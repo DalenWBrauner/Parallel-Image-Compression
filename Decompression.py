@@ -8,6 +8,7 @@
 """
 # Builtin libs
 import time
+import pickle
 
 # Required libs
 from numpy import matrix, array
@@ -24,8 +25,12 @@ def main():
     filename = raw_input("What is the filename? ")
     if filename[-11:] != '.compressed':
         raise TypeError("Requires a .compressed file from Compression.py!")
-    f = open(filename,'r')
-    data = f.read()
+    
+    #f = open(filename,'r')
+    #data = f.read()
+    f = open(filename,'rb')
+    data = pickle.load(f)
+    
     f.close()
     quality = input("And what was the quality of compression? ")
     Decompress(data,filename[:-11],quality)
@@ -87,14 +92,14 @@ def Split_Blocks(data):
     # Setup
     shape = ord(data[0]), ord(data[1])
     code = data[2:].split( str(chr(128) + chr(128)) )
-    code.pop()      # This absolutely should not be necessary
+    #code.pop()      # This absolutely should not be necessary
     split = [[[[] for w in xrange(shape[1])] for l in xrange(shape[0])] for c in xrange(3)]
     pos = 0
     # Gogogo
     try:
         for block in code:
             print block
-            decoded = Decode_Width(block + chr(128) + chr(128))
+            decoded = Decode_Width(block)
             print decoded
             x = (pos / shape[1]) / shape[0]
             y = (pos / shape[1]) % shape[0]

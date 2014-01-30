@@ -8,6 +8,7 @@
 """
 # Builtin libs
 import time
+import pickle
 from math import sqrt, cos, pi
 
 # Required libs
@@ -32,7 +33,7 @@ def main():
     UsersImage = image.imread(raw_input(''))
     if (UsersImage.shape[0] %8 != 0) or (UsersImage.shape[1] %8 != 0):
         raise TypeError("Requires an image whose size is a multiple of 8x8!")
-    print "What level of image quality would you prefer? Please select an integer 1-25,"
+    print "What level of image quality would you prefer?\nPlease select an integer 1-25,"
     print "1 being the greatest image quality but least compressed."
     Quality = int(raw_input(''))
     Compress(UsersImage,Quality)
@@ -100,8 +101,21 @@ def Compress(i,q):
 
     print "Saving to file...",
     t0 = time.clock()
-    f = open(str(time.time())+'.compressed','w')
-    Write_To(R_RunW, G_RunW, B_RunW, f.write)
+
+    # Original
+    #f = open(str(time.time())+'.compressed','w')
+    #Write_To(R_RunW, G_RunW, B_RunW, f.write)
+    
+    # Pickle the array
+    #f = open(str(time.time())+'.compressed','wb')
+    #pickle.dump((R_RunW, G_RunW, B_RunW), f)
+
+    # Pickle the string
+    O = appendablestring()
+    f = open(str(time.time())+'.compressed','wb')
+    Write_To(R_RunW, G_RunW, B_RunW, O.append)
+    pickle.dump(O.gimmie(), f)
+    
     f.close()
     t1 = time.clock()
     tt += (t1-t0)
@@ -281,7 +295,9 @@ def Decode_Width(code):
     """Decodes a Run_Width-encoded list"""
     msg = []
     i = 0
-    while (ord(code[i]) != 128) or (ord(code[i+1]) != 128):
+    if code[-1] == chr(128) and code[-2] == chr(128):
+        code = code[:-2]
+    while i < len(code):
         if ord(code[i]) == 128:
             i += 1
             for num in xrange(ord(code[i])): msg.append(0)
@@ -304,6 +320,33 @@ def Decode_Width(code):
         i += 1
 
     return msg
+
+class appendablestring(object):
+    """For continuing usage of arraymap. The goal of this object is to provide a function that
+    serves to add the contents of a single argument to a string, similar to appending to a list.
+
+    Before this object existed, we simply wrote to a file instead. This worked fine, until we
+    discovered writing to a file added additional characters that showed up when loading.
+
+    This is not the ideal approach."""
+    def __init__(self):
+        self._string = ''
+        
+    def append(self,stuff):
+        if type(stuff) != str:
+            try:
+                for thing in stuff:
+                    self.append(thing)
+            except:
+                err = "You can only append strings to me, not "+str(type(stuff))+"!"
+                raise TypeError(err)
+        elif type(stuff) == type(''):
+            self._string += stuff
+        else:
+            print 'Um...?'
+        
+    def gimmie(self):
+        return self._string
 
 #
 ##
@@ -477,12 +520,20 @@ def Test_Run_Width():
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
-    samples = (sam1, sam2, sam3, sam4, sam5, sam6, sam7, sam8, sam9)
-    map (test, samples)
+    sam10 = [-20273, 305, -1, -7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+    samples = (sam1, sam2, sam3, sam4, sam5, sam6, sam7, sam8, sam9, sam10)
+    map(test, samples)
+
+def printit(thing):
+    """This is for passing 'print' to map or arraymap."""
+    print thing
 
 if __name__ == "__main__":
-    #main()
+    main()
     #Test_DCT()
     #Test_Quantize()
     #Test_Run_Length()
-    Test_Run_Width()
+    #Test_Run_Width()
