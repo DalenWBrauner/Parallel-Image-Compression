@@ -4,11 +4,9 @@
 |   Written by Dalen W. Brauner     |
 |   Status: "Finished"              |
 *                                   *
-
 """
 # Builtin libs
-import time
-import pickle
+import time, pickle
 from math import sqrt, cos, pi
 
 # Required libs
@@ -20,13 +18,15 @@ from array_handler import arraymap
 
 #
 ##
-### Core functions:
+###
+####
+##### Core functions:
 def main():
     print "What is the filename?"
-    print "Win:"
+    print "Windows:"
     print "winter-wallpaper-24.png"
     print "bird.png"
-    print "Mint:"
+    print "Linux Mint:"
     print "./winter-wallpaper-24.png"
     print "./bird.png"
     
@@ -43,6 +43,7 @@ def Compress(i,q):
     The majority of this should be parallelized."""
     # 'i' Should be an Length*Width*4 array of RGB color values
     tt = 0
+
     
     print "Seperating Colors...",
     t0 = time.clock()
@@ -51,6 +52,7 @@ def Compress(i,q):
     tt += (t1-t0)
     print "took",(t1-t0),"seconds."
     # 'Colors' should be a list of the Length*Width arrays for each color value
+
     
     print "Splitting the image into 8x8 blocks...",
     t0 = time.clock()
@@ -60,6 +62,7 @@ def Compress(i,q):
     print "took",(t1-t0),"seconds."
     # Each '_Blocks' variable should be an array of 8x8 matricies, each containing
     # the respective R, G or B pixel data for that 8x8 portion of the image
+
     
     print "Calculating DCTs...",
     t0 = time.clock()
@@ -74,6 +77,7 @@ def Compress(i,q):
 ##    print '\n Sample after DCT:'
 ##    print R_DCTs[0,0]
     # Each '_DCTs' variable should be an array of the DCTs of said 8x8 matrices
+
     
     print "Quantizing data...",
     t0 = time.clock()
@@ -89,6 +93,7 @@ def Compress(i,q):
     # Each '_Quantized' variable should be an array of lists of each DCT
     # reorganized in a lossy, zigzag fashion
 
+
     print "Applying Run Width Algorithm...",
     t0 = time.clock()
     R_RunW = arraymap(Run_Width, R_Quantized)
@@ -99,9 +104,9 @@ def Compress(i,q):
     print "took",(t1-t0),"seconds."
     # Each '_Quantized' variable should be an array of Run_Width() strings
 
+
     print "Saving to file...",
     t0 = time.clock()
-
     # Original
     #f = open(str(time.time())+'.compressed','w')
     #Write_To(R_RunW, G_RunW, B_RunW, f.write)
@@ -109,7 +114,7 @@ def Compress(i,q):
     # Pickle the array
     #f = open(str(time.time())+'.compressed','wb')
     #pickle.dump((R_RunW, G_RunW, B_RunW), f)
-
+    
     # Pickle the string
     O = appendablestring()
     f = open(str(time.time())+'.compressed','wb')
@@ -121,13 +126,14 @@ def Compress(i,q):
     tt += (t1-t0)
     print "took",(t1-t0),"seconds."
     # Hark! Our file hath been saved!
-
     print "\nAll in all...",
     print "everything took",tt,"seconds."
 
 #
 ##
-### Stepping-stone functions:
+###
+####
+##### Stepping-stone functions:
 
 def Split_RGB(i):
     """Returns an R, G and B matrix."""
@@ -274,7 +280,7 @@ def Run_Width(values):
         err = "Run_Width Error: " + str(values[v]+128) + " not chr()able."
         raise ValueError(err)
 
-    # chr(128)chr(128) corresponds to 'EOF'.
+    # \x80\x80 Is used to split on prior to decoding the final string
     return width + chr(128) + chr(128)
 
 def Write_To(Red, Grn, Blu, write):
@@ -289,7 +295,8 @@ def Write_To(Red, Grn, Blu, write):
 
 #
 ##
-### Helper functions:
+####
+##### Helper functions:
 
 def Decode_Width(code):
     """Decodes a Run_Width-encoded list"""
@@ -350,7 +357,9 @@ class appendablestring(object):
 
 #
 ##
-### Debugging functions:
+###
+####
+##### Debugging functions:
 
 def Test_DCT():
     UsersImage = array([
@@ -426,7 +435,6 @@ def Test_Quantize():
     print '\nCompare the following, the second being in zigzag order\n',DCT_Mid
     print QQ[0,0]
     print 'Ultimately, the important thing is the number of 0s.'
-
     print '\n',QQ[9,9]
 
 def Test_Run_Length():
@@ -461,7 +469,6 @@ def Test_Run_Length():
     print "No. Values After:",(2*len(newlist3))
 
 def Test_Run_Width():
-
     def test(sample):
         Ws = Run_Width(sample)
         Ds = Decode_Width(Ws)
@@ -476,54 +483,43 @@ def Test_Run_Width():
             print "not",
         print "the same.)\n"
         
-    
     sam1 = [30, 0, -7, -12, -8, -1, 0, 1, 6, -5, -7, -3, 0, -1, 0, 0, 0, -1, 0, -3, -4, -1, 4,
             3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -3, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    
     sam2 = [0, 0, -7, -12, -8, -1, 0, 1, 6, -5, -7, -3, 0, -1, 0, 0, 0, -1, 0, -3, -4, -1, 4,
             3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -3, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    
     sam3 = [30, 0, -7, -12, -8, -1, 0, 1, 6, -5, -7, -3, 0, -1, 0, 0, 0, -1, 0, -3, -4, -1, 4,
             3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -3, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7, 0]
-    
     sam4 = [414, -1, 156, -47, 0, 0, 0, 0, 0, -14, 22, 0, 0, 0, 0, 0, 0, 0, 0, 0, -6, -9, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    
     sam5 = [389, -12, -153, -27, 1, -8, -8, -5, 15, 19, 5, 5, 1, -6, 0, 7, 0, 0, 4, -10, -7,
             -4, -9, 4, 3, -2, 3, 1, -4, 2, -4, -2, 3, 0, 1, 1, 6, -1, 2, 0, -4, 1, 0, 6, 0, 0,
             2, 1, -1, 0, 3, 2, -1, 4, -2, -2, 0, 2, -1, -2, -5, -2, -1, 0]
-    
     sam6 = [-383, -383, -383, -383, -383, -383, -383, -383, -383, -383, -383, -383, -383, -383,
             -383, -383, -383, -383, -383, -383, -383, -383, -383, -383, -383, -383, -383, -383,
             -383, -383, -383, -383, -383, -383, -383, -383, -383, -383, -383, -383, 560, -1,
             -7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0]
-    
     sam7 = [383, 383, 383, 383, 383, 383, 383, 383, 383, 383, 383, 383, 383, 383, 383, 383,
             383, 383, 383, 383, 383, 383, 383, 383, 383, 383, 383, 383, 383, 383, 383, 383,
             383, 383, 383, 383, 383, 383, 383, 383, 560, -1, -7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-
     sam8 = [383, 383, 383, 383, 383, 383, 383, 383, 383, 383, 383, 383, 383, 383, 383, 383,
             -383, 383, 383, 383, 383, 383, 383, 383, 383, 383, 383, 383, 383, 383, 383, 383,
             383, 383, 383, 383, 383, 383, 383, 383, 560, -1, -7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    
     sam9 = [560, -1, -7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
             0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-
     sam10 = [-20273, 305, -1, -7, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-
     samples = (sam1, sam2, sam3, sam4, sam5, sam6, sam7, sam8, sam9, sam10)
     map(test, samples)
 

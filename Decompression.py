@@ -4,11 +4,9 @@
 |   Written by Dalen W. Brauner     |
 |   Status: Unfinished              |
 *                                   *
-
 """
 # Builtin libs
-import time
-import pickle
+import time, pickle
 
 # Required libs
 from numpy import matrix, array
@@ -20,17 +18,15 @@ from Compression import Calc_DCT, Decode_Width
 
 #
 ##
-### Core functions:
+###
+####
+##### Core functions:
 def main():
     filename = raw_input("What is the filename? ")
     if filename[-11:] != '.compressed':
         raise TypeError("Requires a .compressed file from Compression.py!")
-    
-    #f = open(filename,'r')
-    #data = f.read()
     f = open(filename,'rb')
     data = pickle.load(f)
-    
     f.close()
     quality = input("And what was the quality of compression? ")
     Decompress(data,filename[:-11],quality)
@@ -38,6 +34,7 @@ def main():
 def Decompress(data,filename,quality):
     """Saves a decompressed version of the image."""
     tt = 0
+
     
     print "Seperating Blocks...",
     t0 = time.clock()
@@ -45,6 +42,7 @@ def Decompress(data,filename,quality):
     t1 = time.clock()
     tt += (t1-t0)
     print "took",(t1-t0),"seconds."
+
     
     print "De-Quantizing data...",
     t0 = time.clock()
@@ -54,6 +52,7 @@ def Decompress(data,filename,quality):
     t1 = time.clock()
     tt += (t1-t0)
     print "took",(t1-t0),"seconds."
+
     
     print "Calculating DCTs...",
     t0 = time.clock()
@@ -63,6 +62,7 @@ def Decompress(data,filename,quality):
     t1 = time.clock()
     tt += (t1-t0)
     print "took",(t1-t0),"seconds."
+
     
     print "Merging 8x8 blocks...",
     t0 = time.clock()
@@ -70,6 +70,7 @@ def Decompress(data,filename,quality):
     t1 = time.clock()
     tt += (t1-t0)
     print "took",(t1-t0),"seconds."
+
     
     print "Rearranging Data...",
     t0 = time.clock()
@@ -77,25 +78,24 @@ def Decompress(data,filename,quality):
     t1 = time.clock()
     tt += (t1-t0)
     print "took",(t1-t0),"seconds."
+
     
     misc.imsave(filename,final_array)
     print "\nAll in all...",
     print "everything took",tt,"seconds."
 
-
 #
 ##
-### Stepping-stone functions:
+###
+####
+##### Stepping-stone functions:
 
 def Split_Blocks(data):
     """Decodes and sections the data into 3 arrays of 8x8 blocks"""
-    # Setup
     shape = ord(data[0]), ord(data[1])
     code = data[2:].split( str(chr(128) + chr(128)) )
-    #code.pop()      # This absolutely should not be necessary
     split = [[[[] for w in xrange(shape[1])] for l in xrange(shape[0])] for c in xrange(3)]
     pos = 0
-    # Gogogo
     try:
         for block in code:
             print block
@@ -151,7 +151,9 @@ def Merge_Blocks(data):
 
 #
 ##
-### Debugging functions:
+###
+####
+##### Debugging functions:
 
 def Test_DeQuantize():
     Before = [30, 0, -7, -12, -8, -1, 0, 1, 6, -5, -7, -3, 0, -1, 0, 0, 0, -1, 0, -3, -4, -1,
