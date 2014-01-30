@@ -298,36 +298,6 @@ def Write_To(Red, Grn, Blu, write):
 ####
 ##### Helper functions:
 
-def Decode_Width(code):
-    """Decodes a Run_Width-encoded list"""
-    msg = []
-    i = 0
-    if code[-1] == chr(128) and code[-2] == chr(128):
-        code = code[:-2]
-    while i < len(code):
-        if ord(code[i]) == 128:
-            i += 1
-            for num in xrange(ord(code[i])): msg.append(0)
-        elif ord(code[i]) == 255:
-            n = 255
-            i += 1
-            while ord(code[i]) == 255:
-                n += 255
-                i += 1
-            msg.append(ord(code[i])-128+n)
-        elif ord(code[i]) == 0:
-            n = -255
-            i += 1
-            while ord(code[i]) == 0:
-                n -= 255
-                i += 1
-            msg.append(ord(code[i])-128+n)
-        else:
-            msg.append(ord(code[i])-128)
-        i += 1
-
-    return msg
-
 class appendablestring(object):
     """For continuing usage of arraymap. The goal of this object is to provide a function that
     serves to add the contents of a single argument to a string, similar to appending to a list.

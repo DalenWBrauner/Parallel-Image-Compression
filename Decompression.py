@@ -14,7 +14,7 @@ from scipy import ndimage as image, misc
 
 # Custom libs
 from array_handler import arraymap
-from Compression import Calc_DCT, Decode_Width
+from Compression import Calc_DCT
 
 #
 ##
@@ -90,6 +90,36 @@ def Decompress(data,filename,quality):
 ####
 ##### Stepping-stone functions:
 
+def Decode_Width(code):
+    """Decodes a Run_Width-encoded list"""
+    msg = []
+    i = 0
+    if code[-1] == chr(128) and code[-2] == chr(128):
+        code = code[:-2]
+    while i < len(code):
+        if ord(code[i]) == 128:
+            i += 1
+            for num in xrange(ord(code[i])): msg.append(0)
+        elif ord(code[i]) == 255:
+            n = 255
+            i += 1
+            while ord(code[i]) == 255:
+                n += 255
+                i += 1
+            msg.append(ord(code[i])-128+n)
+        elif ord(code[i]) == 0:
+            n = -255
+            i += 1
+            while ord(code[i]) == 0:
+                n -= 255
+                i += 1
+            msg.append(ord(code[i])-128+n)
+        else:
+            msg.append(ord(code[i])-128)
+        i += 1
+
+    return msg
+
 def Split_Blocks(data):
     """Decodes and sections the data into 3 arrays of 8x8 blocks"""
     shape = ord(data[0]), ord(data[1])
@@ -149,24 +179,5 @@ def Merge_Blocks(data):
     raise NotImplementedError
     return Red, Blu, Grn
 
-#
-##
-###
-####
-##### Debugging functions:
-
-def Test_DeQuantize():
-    Before = [30, 0, -7, -12, -8, -1, 0, 1, 6, -5, -7, -3, 0, -1, 0, 0, 0, -1, 0, -3, -4, -1,
-              4, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -3, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    arr = array([[Before for x in xrange(11)] for x in xrange(11)])
-    DQ = DeQuantize(arr,2)
-    print '\nCompare the following, the first being in zigzag order\n',Before
-    Qtrx = matrix([[(1 + (x + y + 1)*2) for x in xrange(8)] for y in xrange(8)])
-    print Qtrx
-
-    print '\n',DQ[9,9]
-
 if __name__ == "__main__":
     main()
-    #Test_DeQuantize()

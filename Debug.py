@@ -4,6 +4,7 @@ from numpy import matrix, array
 # Custom libs
 from array_handler import arraymap
 from Compression import *
+from Decompression import *
 
 def Test_DCT():
     UsersImage = array([
@@ -170,8 +171,20 @@ def Test_Run_Width():
                sam13, sam14, sam15, sam16)
     map(test, samples)
 
+def Test_DeQuantize():
+    Before = [30, 0, -7, -12, -8, -1, 0, 1, 6, -5, -7, -3, 0, -1, 0, 0, 0, -1, 0, -3, -4, -1,
+              4, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -3, 1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+              0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    arr = array([[Before for x in xrange(11)] for x in xrange(11)])
+    DQ = DeQuantize(arr,2)
+    Qtrx = matrix([[(1 + (x + y + 1)*2) for x in xrange(8)] for y in xrange(8)])
+    print 'First, we have the quantized version.\n',Before
+    print 'Next, we have the Qtrx Matrix.\n',Qtrx
+    print 'And finally, the end result!\n',DQ[9,9]
+
 if __name__ == "__main__":
     #Test_DCT()
     #Test_Quantize()
     #Test_Run_Length()
     Test_Run_Width()
+    #Test_DeQuantize()
