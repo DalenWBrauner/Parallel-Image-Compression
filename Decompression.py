@@ -7,6 +7,7 @@
 """
 # Builtin libs
 import time, pickle
+from math import sqrt, cos, pi
 
 # Required libs
 from numpy import matrix, array
@@ -14,7 +15,6 @@ from scipy import ndimage as image, misc
 
 # Custom libs
 from array_handler import arraymap
-from Compression import Calc_DCT
 
 #
 ##
@@ -54,11 +54,11 @@ def Decompress(data,filename,quality):
     print "took",(t1-t0),"seconds."
 
     
-    print "Calculating DCTs...",
+    print "Undoing DCTs...",
     t0 = time.clock()
-    R_DCTs = arraymap(Calc_DCT, R_DQ, dtype=int, esize=2)
-    G_DCTs = arraymap(Calc_DCT, G_DQ, dtype=int, esize=2)
-    B_DCTs = arraymap(Calc_DCT, B_DQ, dtype=int, esize=2)
+    R_DCTs = arraymap(Undo_DCT, R_DQ, dtype=int, esize=2)
+    G_DCTs = arraymap(Undo_DCT, G_DQ, dtype=int, esize=2)
+    B_DCTs = arraymap(Undo_DCT, B_DQ, dtype=int, esize=2)
     t1 = time.clock()
     tt += (t1-t0)
     print "took",(t1-t0),"seconds."
@@ -177,6 +177,38 @@ def DeQuantize(data,Q):
                     print '\ndata[x,y][t]:',data[x,y][t]
             New[x].append(M)
     return array(New)
+
+def Undo_DCT(M):
+    """Given a square numpy matrix "M", returns its DCT."""
+    # Prevent modification of the original matrix
+    M = M.copy()
+    # Assure the matrix is square
+    N, width = M.shape
+    if N != width:  raise TypeError("DCT() requires matrix argument to be square")
+
+    # Construct the Cosine Transform Matrix
+    first = 1.0/sqrt(N)
+    second = sqrt(2.0/N)
+    third = 1.0/(2.0*N)
+    C = matrix([[0 for j in xrange(N)] for i in xrange(N)],dtype='f')
+    # Correct the first few values
+    for i in xrange(N):
+        C[0,i] = first
+    # Calculate the rest
+    for i in xrange(N-1):
+        for j in xrange(N):
+            C[i+1,j] = second * cos( (2*j+1) *(i+1) *pi *third)
+
+    # Undo the Cosine Transform Matrix FIRST,
+    M = (C.T * M * C).round(0)
+    
+    # THEN Scale input pixel values to be consistent with the JPEG algorithm
+    for i in xrange(N):
+        for j in xrange(N):
+            M[i,j] = M[i,j] + 128
+            
+    # Now we should have it!
+    return M
 
 def Merge_Blocks(data):
     raise NotImplementedError

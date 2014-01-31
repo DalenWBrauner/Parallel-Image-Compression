@@ -174,20 +174,21 @@ def Split_Blocks(M):
 
 def Calc_DCT(M):
     """Given a square numpy matrix "M", returns its DCT."""
+    # Prevent modification of the original matrix
+    M = M.copy()
     # Assure the matrix is square
     N, width = M.shape
     if N != width:  raise TypeError("DCT() requires matrix argument to be square")
 
-    # Calculate constants
+    # Construct the Cosine Transform Matrix
     first = 1.0/sqrt(N)
     second = sqrt(2.0/N)
     third = 1.0/(2.0*N)
-    
-    # Create the Cosine Transform Matrix
     C = matrix([[0 for j in xrange(N)] for i in xrange(N)],dtype='f')
     # Correct the first few values
     for i in xrange(N):
         C[0,i] = first
+    # Calculate the rest
     for i in xrange(N-1):
         for j in xrange(N):
             C[i+1,j] = second * cos( (2*j+1) *(i+1) *pi *third)

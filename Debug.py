@@ -6,12 +6,6 @@ from array_handler import arraymap
 from Compression import *
 from Decompression import *
 
-#
-##
-###
-####
-##### Compression.py
-
 def Test_DCT():
     print 'Test_DCT()\n'
     UsersImage = array([
@@ -24,9 +18,9 @@ def Test_DCT():
     [136, 156, 123, 167, 162, 144, 140, 147],
     [148, 155, 136, 155, 152, 147, 147, 136]
     ])
-    print UsersImage
-    print Calc_DCT(UsersImage)
-    print Calc_DCT(Calc_DCT(UsersImage)),'\n'
+    D1 = Calc_DCT(UsersImage)
+    D2 = Undo_DCT(D1)
+    print UsersImage,'\n',D1,'\n',D2,'\n'
     
     UsersImage = array([
     [52, 55, 61,  66,  70,  61, 64, 73],
@@ -38,9 +32,9 @@ def Test_DCT():
     [85, 71, 64,  59,  55,  61, 65, 83],
     [87, 79, 69,  68,  65,  76, 78, 94]
     ])
-    print UsersImage
-    print Calc_DCT(UsersImage)
-    print Calc_DCT(Calc_DCT(UsersImage)),'\n'
+    D1 = Calc_DCT(UsersImage)
+    D2 = Undo_DCT(D1)
+    print UsersImage,'\n',D1,'\n',D2,'\n'
 
     UsersImage = array([
     [100, 100, 100, 100, 100, 100, 100, 100],
@@ -52,9 +46,9 @@ def Test_DCT():
     [100, 100, 100, 100, 100, 100, 100, 100],
     [100, 100, 100, 100, 100, 100, 100, 100]
     ])
-    print UsersImage
-    print Calc_DCT(UsersImage)
-    print Calc_DCT(Calc_DCT(UsersImage)),'\n'
+    D1 = Calc_DCT(UsersImage)
+    D2 = Undo_DCT(D1)
+    print UsersImage,'\n',D1,'\n',D2,'\n'
     
 def Test_Quantize():
     print 'Test_Quantize()\n'
@@ -215,12 +209,6 @@ def Test_Run_Width():
                sam23, sam24, sam25, sam26, sam27, sam28)
     map(test, samples)
 
-#
-##
-###
-####
-##### Decompression.py
-
 def Test_DeQuantize():
     print 'Test_DeQuantize()\n'
     Before = [30, 0, -7, -12, -8, -1, 0, 1, 6, -5, -7, -3, 0, -1, 0, 0, 0, -1, 0, -3, -4, -1,
@@ -238,7 +226,7 @@ def Test_DeQuantize():
     print result,'\n',result.all()
 
 if __name__ == "__main__":
-    #Test_DCT()
+    Test_DCT()
     #Test_Quantize()
     #Test_Run_Length()
     #Test_Run_Width()
