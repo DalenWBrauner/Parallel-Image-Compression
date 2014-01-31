@@ -118,7 +118,7 @@ def Compress(i,q):
     
     # Pickle the string
     O = appendablestring()
-    f = open(str(time.time())+'.compressed','wb')
+    f = open(str(int(time.time()*10))+'.compressed','wb')
     Write_To(R_RunW, G_RunW, B_RunW, O.append)
     pickle.dump(O.gimmie(), f)
     

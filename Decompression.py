@@ -80,7 +80,7 @@ def Decompress(data,filename,quality):
     print "took",(t1-t0),"seconds."
 
     
-    misc.imsave((filename[:-3]+'.png'),final_array)
+    misc.imsave((filename+'.png'),final_array)
     print "\nAll in all...",
     print "everything took",tt,"seconds."
 
@@ -140,7 +140,7 @@ def Split_Blocks(data):
             split[x][y][z] = decoded
             pos += 1
     except IndexError:
-        print pos
+        print pos,x,y,z
         raise IndexError
     return array(split)
 
