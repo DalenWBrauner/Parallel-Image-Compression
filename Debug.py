@@ -232,10 +232,14 @@ def Test_DeQuantize():
     print 'First, we have the quantized version.\n',Before
     print 'Next, we have the Qtrx Matrix.\n',Qtrx
     print 'And finally, the end result!\n',DQ[9,9]
+    print '\nActually, just to double-check, let\'s Re-Quantize it to see what happens.'
+    RQ = Quantize(DQ,2)
+    result = RQ == arr
+    print result,'\n',result.all()
 
 if __name__ == "__main__":
     #Test_DCT()
     #Test_Quantize()
     #Test_Run_Length()
-    Test_Run_Width()
+    #Test_Run_Width()
     #Test_DeQuantize()
