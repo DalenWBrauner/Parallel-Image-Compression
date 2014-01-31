@@ -2,7 +2,7 @@
 .                                   .
 |   Decompression.py                |
 |   Written by Dalen W. Brauner     |
-|   Status: Unfinished              |
+|   Status: "Finished"              |
 *                                   *
 """
 # Builtin libs
@@ -80,7 +80,7 @@ def Decompress(data,filename,quality):
     print "took",(t1-t0),"seconds."
 
     
-    misc.imsave(filename,final_array)
+    misc.imsave((filename[:-3]+'.png'),final_array)
     print "\nAll in all...",
     print "everything took",tt,"seconds."
 
@@ -210,9 +210,22 @@ def Undo_DCT(M):
     # Now we should have it!
     return M
 
-def Merge_Blocks(data):
-    raise NotImplementedError
-    return Red, Blu, Grn
+def Merge_Blocks(A):
+    """Given an N by M array of 8x8 matrices "A", returns the N*8 by M*8 array "MA" as if
+    each slot in the array was split into 8x8, and each corresponding matrix value inserted
+    into these new slots."""
+    N = A.shape[1]
+    M = A.shape[0]
+    final = [[] for f in xrange(N*8)]
+    for m in xrange(N):
+        for y in xrange(8):
+            for n in xrange(M):
+                for x in xrange(8):
+                    final[y + m*8].append(A[n,m][x,y])
+    
+    #raise NotImplementedError
+    Merged = array(final)
+    return Merged
 
 if __name__ == "__main__":
     main()
