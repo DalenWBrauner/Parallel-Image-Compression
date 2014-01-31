@@ -90,7 +90,7 @@ def Decompress(data,filename,quality):
 ####
 ##### Stepping-stone functions:
 
-def Decode_Width(code):
+def Decode_Width(code, debugging=True):
     """Decodes a Run_Width-encoded list"""
     msg = []
     i = 0
@@ -118,6 +118,10 @@ def Decode_Width(code):
             msg.append(ord(code[i])-128)
         i += 1
 
+    if debugging and len(msg) != 64:
+        print "\nWhoa, this ain't 64 long...",msg
+        print "It's off by",64-len(msg)
+        print "Here's the original:",code,'\n'
     return msg
 
 def Split_Blocks(data):

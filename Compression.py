@@ -15,6 +15,7 @@ from scipy import ndimage as image
 
 # Custom libs
 from array_handler import arraymap
+#from Decompression import Decode_Width
 
 #
 ##
@@ -243,7 +244,7 @@ def Run_Length(values):
 def Huffman(argument):
     raise NotImplementedError
 
-def Run_Width(values):
+def Run_Width(values, debugging=True):
     """Given a list of values, returns a string of those values as characters,
     with the number of zeroes that follow each value as a character after.
     Values are re-incrimented by 128 so the majority of values are chr()-
@@ -292,7 +293,20 @@ def Run_Width(values):
         err = "Run_Width Error: " + str(values[v]+128) + " not chr()able."
         raise ValueError(err)
 
-    # \x80\x80 Is used to split on prior to decoding the final string
+    # To help make sure everything is in working order:
+    if debugging:
+        if len(values) != 64:
+            print "Uhh, len(values) != 64."
+            print len(values),values
+        
+##        decoded = Decode_Width(width)
+##        if len(decoded) != len(values):
+##               print "Run_Width and Decode_Width aren't getting along!"
+##               print len(values),values
+##               print len(decoded),decoded
+##               print len(values) - len(decoded)
+
+    # \x80\x80 Is used to split on prior to decoding the final string               
     return width + chr(128) + chr(128)
 
 def Write_To(Red, Grn, Blu, write):
