@@ -193,13 +193,12 @@ def Calc_DCT(M):
         for j in xrange(N):
             C[i+1,j] = second * cos( (2*j+1) *(i+1) *pi *third)
 
-    # Scale input pixel values to be consistent with the JPEG algorithm
-##    for i in xrange(N):
-##        for j in xrange(N):
-##            M[i,j] = M[i,j] - 128
-            
-    # Calculate and round the DCT itself
-    return (C * M * C.T).round(0)
+    # Calculate the DCT
+    M = (C * M * C.T).round(0)
+
+    # Scale pixel values to be consistent with JPEG algorithm
+    M[0,0] -= 1024
+    return M
 
 def Quantize(A,Q):
     """Given a numpy array of 8x8 matrices "A" and quality level "Q", returns

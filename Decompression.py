@@ -199,16 +199,11 @@ def Undo_DCT(M):
         for j in xrange(N):
             C[i+1,j] = second * cos( (2*j+1) *(i+1) *pi *third)
 
-    # Undo the Cosine Transform Matrix FIRST,
-    M = (C.T * M * C).round(0)
-    
-    # THEN Scale input pixel values to be consistent with the JPEG algorithm
-##    for i in xrange(N):
-##        for j in xrange(N):
-##            M[i,j] = M[i,j] + 128
-            
-    # Now we should have it!
-    return M
+    # Scale pixel values to be consistent with JPEG algorithm
+    M[0,0] += 1024
+
+    # Calculate DCT
+    return (C.T * M * C).round(0)
 
 def Merge_Blocks(A):
     """Given an N by M array of 8x8 matrices "A", returns the N*8 by M*8 array "MA" as if
