@@ -38,7 +38,7 @@ def Decompress(data,filename,quality):
     
     print "Seperating Blocks...",
     t0 = time.clock()
-    R, G, B = Split_Blocks(data)
+    R, G, B = Unpack_Blocks(data)
     t1 = time.clock()
     tt += (t1-t0)
     print "took",(t1-t0),"seconds."
@@ -124,7 +124,7 @@ def Decode_Width(code, debugging=True):
         print "Here's the original:",code,'\n'
     return msg
 
-def Split_Blocks(data):
+def Unpack_Blocks(data):
     """Decodes and sections the data into 3 arrays of 8x8 blocks"""
     shape = ord(data[0]), ord(data[1])
     code = data[2:].split( str(chr(128) + chr(128)) )
