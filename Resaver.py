@@ -27,56 +27,23 @@ Colors = Split_RGB(i)
 # Split_Blocks()
 R_Blocks, G_Blocks, B_Blocks = map(Split_Blocks, Colors)
 
-### Calc_DCT()
-##R_DCTs = arraymap(Calc_DCT, R_Blocks, dtype=int, esize=2)
-##G_DCTs = arraymap(Calc_DCT, G_Blocks, dtype=int, esize=2)
-##B_DCTs = arraymap(Calc_DCT, B_Blocks, dtype=int, esize=2)
-
-## Calc_DCT() sans arraymap()
-##NewR = []
-##NewG = []
-##NewB = []
-##for x in xrange(R_Blocks.shape[0]):
-##    NewR.append([])
-##    NewG.append([])
-##    NewB.append([])
-##    for y in xrange(R_Blocks.shape[1]):
-##        NewR[x].append(Calc_DCT(R_Blocks[x,y]))
-##        NewG[x].append(Calc_DCT(G_Blocks[x,y]))
-##        NewB[x].append(Calc_DCT(B_Blocks[x,y]))
-##R_DCTs = array(NewR, dtype=int)
-##G_DCTs = array(NewG, dtype=int)
-##B_DCTs = array(NewB, dtype=int)
+# Calc_DCT()
+R_DCTs = arraymap(Calc_DCT, R_Blocks, esize=2)
+G_DCTs = arraymap(Calc_DCT, G_Blocks, esize=2)
+B_DCTs = arraymap(Calc_DCT, B_Blocks, esize=2)
         
 
 #
 ##
 ### Decompressor Emulator
 
-### Undo_DCT()
-##Just_R = arraymap(Undo_DCT, R_DCTs, dtype=int, esize=2)
-##Just_G = arraymap(Undo_DCT, G_DCTs, dtype=int, esize=2)
-##Just_B = arraymap(Undo_DCT, B_DCTs, dtype=int, esize=2)
-
-## Undo_DCT() sans arraymap()
-##NewR = []
-##NewG = []
-##NewB = []
-##for x in xrange(R_Blocks.shape[0]):
-##    NewR.append([])
-##    NewG.append([])
-##    NewB.append([])
-##    for y in xrange(R_Blocks.shape[1]):
-##        NewR[x].append(Undo_DCT(R_DCTs[x,y]))
-##        NewG[x].append(Undo_DCT(G_DCTs[x,y]))
-##        NewB[x].append(Undo_DCT(B_DCTs[x,y]))
-##Just_R = array(NewR, dtype=int)
-##Just_G = array(NewG, dtype=int)
-##Just_B = array(NewB, dtype=int)
-Just_R, Just_G, Just_B = R_Blocks, G_Blocks, B_Blocks
+# Undo_DCT()
+R_Blocks = arraymap(Undo_DCT, R_DCTs, esize=2)
+G_Blocks = arraymap(Undo_DCT, G_DCTs, esize=2)
+B_Blocks = arraymap(Undo_DCT, B_DCTs, esize=2)
 
 # Merge_Blocks()
-R_Merged, G_Merged, B_Merged = map(Merge_Blocks, (Just_R, Just_G, Just_B))
+R_Merged, G_Merged, B_Merged = map(Merge_Blocks, (R_Blocks, G_Blocks, B_Blocks))
 Colors = R_Merged, G_Merged, B_Merged
 
 # main()

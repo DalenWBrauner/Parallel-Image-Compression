@@ -194,9 +194,9 @@ def Calc_DCT(M):
             C[i+1,j] = second * cos( (2*j+1) *(i+1) *pi *third)
 
     # Scale input pixel values to be consistent with the JPEG algorithm
-    for i in xrange(N):
-        for j in xrange(N):
-            M[i,j] = M[i,j] - 128
+##    for i in xrange(N):
+##        for j in xrange(N):
+##            M[i,j] = M[i,j] - 128
             
     # Calculate and round the DCT itself
     return (C * M * C.T).round(0)

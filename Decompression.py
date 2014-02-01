@@ -203,9 +203,9 @@ def Undo_DCT(M):
     M = (C.T * M * C).round(0)
     
     # THEN Scale input pixel values to be consistent with the JPEG algorithm
-    for i in xrange(N):
-        for j in xrange(N):
-            M[i,j] = M[i,j] + 128
+##    for i in xrange(N):
+##        for j in xrange(N):
+##            M[i,j] = M[i,j] + 128
             
     # Now we should have it!
     return M
