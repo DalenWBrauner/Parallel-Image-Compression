@@ -221,7 +221,7 @@ def Merge_Blocks(A):
         for y in xrange(8):
             for m in xrange(M):
                 for x in xrange(8):
-                    final[y + n*8].append(A[m,n][x,y])
+                    final[y + n*8].append(A[m,n][y,x])
     
     #raise NotImplementedError
     Merged = array(final)
