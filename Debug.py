@@ -1,3 +1,11 @@
+"""
+.                                   .
+|   Debug.py                        |
+|   Written by Dalen W. Brauner     |
+|   Status: "Finished"              |
+*                                   *
+"""
+
 # Required libs
 from numpy import matrix, array
 

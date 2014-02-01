@@ -11,7 +11,7 @@ from math import sqrt, cos, pi
 
 # Required libs
 from numpy import matrix, array
-from scipy import ndimage as image, misc
+from scipy import misc
 
 # Custom libs
 from array_handler import arraymap
