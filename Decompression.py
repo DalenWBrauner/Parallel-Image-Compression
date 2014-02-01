@@ -141,7 +141,7 @@ def Unpack_Blocks(data):
             pos += 1
     except IndexError:
         print pos,x,y,z
-        raise IndexError
+        split[x][y][z] = decoded
     return array(split)
 
 def DeQuantize(data,Q):
@@ -217,10 +217,6 @@ def Merge_Blocks(A):
             for m in xrange(M):
                 for x in xrange(8):
                     final[y + n*8].append(A[m,n][y,x])
-    
-    #raise NotImplementedError
-    Merged = array(final)
-    return Merged
+    return array(final)
 
-if __name__ == "__main__":
-    main()
+if __name__ == "__main__":  main()

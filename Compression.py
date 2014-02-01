@@ -15,7 +15,6 @@ from scipy import ndimage as image
 
 # Custom libs
 from array_handler import arraymap
-#from Decompression import Decode_Width
 
 #
 ##
@@ -126,7 +125,7 @@ def Compress(i,q):
     t1 = time.clock()
     tt += (t1-t0)
     print "took",(t1-t0),"seconds."
-    # Hark! Our file hath been saved!
+
     print "\nAll in all...",
     print "everything took",tt,"seconds."
 
@@ -225,25 +224,6 @@ def Quantize(A,Q):
             New[x].append(Zagg)
     return array(New)
 
-def Run_Length(values):
-    """Given a list of values, returns a list of tuples with non-zero
-    values and the number of zeroes that follow it in the original sequence"""
-    new_list = []
-    tup = [values[0],0]
-    v = 1
-    while v < len(values):
-        if values[v] != 0:
-            new_list.append(tuple(tup))
-            tup = [values[v],0]
-        else:
-            tup[1] += 1
-        v += 1
-    new_list.append(tuple(tup))
-    return new_list
-
-def Huffman(argument):
-    raise NotImplementedError
-
 def Run_Width(values, debugging=True):
     """Given a list of values, returns a string of those values as characters,
     with the number of zeroes that follow each value as a character after.
@@ -298,13 +278,6 @@ def Run_Width(values, debugging=True):
         if len(values) != 64:
             print "Uhh, len(values) != 64."
             print len(values),values
-        
-##        decoded = Decode_Width(width)
-##        if len(decoded) != len(values):
-##               print "Run_Width and Decode_Width aren't getting along!"
-##               print len(values),values
-##               print len(decoded),decoded
-##               print len(values) - len(decoded)
 
     # \x80\x80 Is used to split on prior to decoding the final string               
     return width + chr(128) + chr(128)
@@ -356,5 +329,4 @@ def printit(thing):
     """This is for passing 'print' to map or arraymap."""
     print thing
 
-if __name__ == "__main__":
-    main()
+if __name__ == "__main__":  main()
