@@ -10,13 +10,24 @@ from scipy.ndimage import imread
 from scipy.misc import imsave
 from numpy import array
 
-# Compressor Emulator
-filename = raw_input('Filename? ')
-I = imread(filename)
-I_Swapped = I.swapaxes(0,2)
-R, G, B, Alpha = I_Swapped
+from Compression import *
+from Decompression import *
 
-# Decompressor Emulator
-I_Combined = array([R, G, B])
-I_SwappedAgain = I_Combined.swapaxes(0,2)
-imsave('new.png',I_SwappedAgain)
+#
+##
+### Compressor Emulator
+
+# main()
+filename = raw_input('Filename? ')
+i = imread(filename)
+
+# Split_RGB()
+Colors = Split_RGB(i)
+
+#
+##
+### Decompressor Emulator
+
+# main()
+final_array = array(Colors).swapaxes(0,2)
+imsave('new.png',final_array)
