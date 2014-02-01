@@ -119,7 +119,7 @@ def Compress(i,q):
     # Pickle the string
     O = appendablestring()
     f = open(str(int(time.time()*10))+'.compressed','wb')
-    Write_To(R_RunW, G_RunW, B_RunW, O.append)
+    Write_To(q, R_RunW, G_RunW, B_RunW, O.append)
     pickle.dump(O.gimmie(), f)
     
     f.close()
@@ -309,10 +309,11 @@ def Run_Width(values, debugging=True):
     # \x80\x80 Is used to split on prior to decoding the final string               
     return width + chr(128) + chr(128)
 
-def Write_To(Red, Grn, Blu, write):
+def Write_To(Q, Red, Grn, Blu, write):
     """Given RGB and a file's write function, writes appropriate headers and
     the contents of the array to the file."""
     L, W = Red.shape
+    write(chr(Q))
     write(chr(L))
     write(chr(W))
     arraymap(write,Red)

@@ -28,13 +28,13 @@ def main():
     f = open(filename,'rb')
     data = pickle.load(f)
     f.close()
-    quality = input("And what was the quality of compression? ")
-    Decompress(data,filename[:-11],quality)
+    Decompress(data,filename[:-11])
     
-def Decompress(data,filename,quality):
+def Decompress(data,filename):
     """Saves a decompressed version of the image."""
     tt = 0
-
+    quality = ord(data[0])
+    data = data[1:]
     
     print "Seperating Blocks...",
     t0 = time.clock()
