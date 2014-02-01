@@ -117,7 +117,8 @@ def Compress(i,q):
     
     # Pickle the string
     O = appendablestring()
-    f = open(str(int(time.time()*10))+'.compressed','wb')
+    filename = str(int(time.time()*10))+'.compressed'
+    f = open(filename,'wb')
     Write_To(q, R_RunW, G_RunW, B_RunW, O.append)
     pickle.dump(O.gimmie(), f)
     
@@ -128,6 +129,7 @@ def Compress(i,q):
 
     print "\nAll in all...",
     print "everything took",tt,"seconds."
+    print "Filename:",filename
 
 #
 ##
