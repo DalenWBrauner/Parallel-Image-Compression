@@ -141,7 +141,7 @@ def Unpack_Blocks(data):
             pos += 1
     except IndexError:
         print pos,x,y,z
-        split[x][y][z] = decoded
+        raise IndexError
     return array(split)
 
 def DeQuantize(data,Q):

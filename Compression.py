@@ -24,7 +24,7 @@ from array_handler import arraymap
 def main():
     print "What is the filename?"
     print "Windows:"
-    print "winter-wallpaper-24.png"
+    print "winter.png"
     print "bird.png"
     print "Linux Mint:"
     print "./winter-wallpaper-24.png"
