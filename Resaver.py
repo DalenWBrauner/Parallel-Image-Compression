@@ -5,6 +5,7 @@
 |   Status: Unfinished              |
 *                                   *
 """
+import pickle
 
 from scipy.ndimage import imread
 from scipy.misc import imsave
@@ -55,9 +56,22 @@ for arr in B_RunW:
     for code in arr:
         final_string += code
 
+# Arbitrary Pickling
+f = open('delete_me.arbitrary', 'wb')
+pickle.dump(final_string, f)
+f.close()
+
+# Clearing the final_string data
+final_string = ''
+
 #
 ##
 ### Decompressor Emulator
+
+# Arbitrary Pickling
+f = open('delete_me.arbitrary', 'rb')
+final_string = pickle.load(f)
+f.close()
 
 # Decompress()
 quality = ord(final_string[0])
