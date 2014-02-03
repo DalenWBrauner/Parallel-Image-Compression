@@ -139,7 +139,13 @@ def Compress(i,q):
 
 def Split_RGB(i):
     """Returns an R, G and B matrix."""
-    R, G, B, Alpha = i.swapaxes(0,2)
+    new_i = i.swapaxes(0,2)
+    if new_i.shape[0] == 4:
+        R, G, B, Alpha = new_i
+    elif new_i.shape[0] == 3:
+        R, G, B = new_i
+    else:
+        raise TypeError("I'm afraid I don't recognize this image format.")
     return (matrix(R), matrix(G), matrix(B))
 
 def Split_YUV(i):

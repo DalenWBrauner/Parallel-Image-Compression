@@ -43,43 +43,32 @@ R_RunW = arraymap(Run_Width, R_Q)
 G_RunW = arraymap(Run_Width, G_Q)
 B_RunW = arraymap(Run_Width, B_Q)
 
+# Write_To()
+final_string = chr(q) + chr(R_RunW.shape[0]) + chr(R_RunW.shape[1])
+for arr in R_RunW:
+    for code in arr:
+        final_string += code
+for arr in G_RunW:
+    for code in arr:
+        final_string += code
+for arr in B_RunW:
+    for code in arr:
+        final_string += code
+
 #
 ##
 ### Decompressor Emulator
 
-# Decode_Width()
-##R_DeW = arraymap(Decode_Width, R_RunW)
-##G_DeW = arraymap(Decode_Width, G_RunW)
-##B_DeW = arraymap(Decode_Width, B_RunW)
-# Create lists
-R_DeW = [[] for x in xrange(R_RunW.shape[0])]
-G_DeW = [[] for x in xrange(G_RunW.shape[0])]
-B_DeW = [[] for x in xrange(B_RunW.shape[0])]
-# Loop through array, decode+append to list
-r = -1
-for arr in R_RunW:
-    r += 1
-    for code in arr:
-         R_DeW[r].append(Decode_Width(code))
+# Decompress()
+quality = ord(final_string[0])
 
-g = -1
-for arr in G_RunW:
-    g += 1
-    for code in arr:
-         G_DeW[g].append(Decode_Width(code))
-
-b = -1
-for arr in B_RunW:
-    b += 1
-    for code in arr:
-         B_DeW[b].append(Decode_Width(code))
-# Convert to array
-R_DeW, G_DeW, B_DeW = array(R_DeW), array(G_DeW), array(B_DeW)
+# Unpack_Blocks()
+R, G, B = Unpack_Blocks(final_string[1:])
 
 # DeQuantize()
-R_DQ = DeQuantize(R_DeW,q)
-G_DQ = DeQuantize(G_DeW,q)
-B_DQ = DeQuantize(B_DeW,q)
+R_DQ = DeQuantize(R,q)
+G_DQ = DeQuantize(G,q)
+B_DQ = DeQuantize(B,q)
 
 # Undo_DCT()
 R_Blocks = arraymap(Undo_DCT, R_DQ, esize=2)
