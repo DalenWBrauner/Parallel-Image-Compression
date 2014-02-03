@@ -30,20 +30,15 @@ def main():
     print "./winter-wallpaper-24.png"
     print "./bird.png"
     
-    UsersImage = image.imread(raw_input(''))
-    if (UsersImage.shape[0] %8 != 0) or (UsersImage.shape[1] %8 != 0):
+    i = image.imread(raw_input(''))
+    if (i.shape[0] %8 != 0) or (i.shape[1] %8 != 0):
         raise TypeError("Requires an image whose size is a multiple of 8x8!")
+    
     print "What level of image quality would you prefer?\nPlease select an integer 1-25,"
     print "1 being the greatest image quality but least compressed."
-    Quality = int(raw_input(''))
-    Compress(UsersImage,Quality)
-
-def Compress(i,q):
-    """Saves a compressed version of the image.
-    The majority of this should be parallelized."""
-    # 'i' Should be an Length*Width*4 array of RGB color values
+    q = int(raw_input(''))
+    
     tt = 0
-
     
     print "Seperating Colors...",
     t0 = time.clock()
@@ -52,7 +47,6 @@ def Compress(i,q):
     tt += (t1-t0)
     print "took",(t1-t0),"seconds."
     # 'Colors' should be a list of the Length*Width arrays for each color value
-
     
     print "Splitting the image into 8x8 blocks...",
     t0 = time.clock()
@@ -62,7 +56,6 @@ def Compress(i,q):
     print "took",(t1-t0),"seconds."
     # Each '_Blocks' variable should be an array of 8x8 matricies, each containing
     # the respective R, G or B pixel data for that 8x8 portion of the image
-
     
     print "Calculating DCTs...",
     t0 = time.clock()
@@ -77,7 +70,6 @@ def Compress(i,q):
 ##    print '\n Sample after DCT:'
 ##    print R_DCTs[0,0]
     # Each '_DCTs' variable should be an array of the DCTs of said 8x8 matrices
-
     
     print "Quantizing data...",
     t0 = time.clock()
@@ -93,7 +85,6 @@ def Compress(i,q):
     # Each '_Quantized' variable should be an array of lists of each DCT
     # reorganized in a lossy, zigzag fashion
 
-
     print "Applying Run Width Algorithm...",
     t0 = time.clock()
     R_RunW = arraymap(Run_Width, R_Quantized)
@@ -103,7 +94,6 @@ def Compress(i,q):
     tt += (t1-t0)
     print "took",(t1-t0),"seconds."
     # Each '_Quantized' variable should be an array of Run_Width() strings
-
 
     print "Saving to file...",
     t0 = time.clock()

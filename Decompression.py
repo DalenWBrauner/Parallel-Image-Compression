@@ -22,16 +22,17 @@ from array_handler import arraymap
 ####
 ##### Core functions:
 def main():
+    
+    # File handling
     filename = raw_input("What is the filename? ")
     if filename[-11:] != '.compressed':
         raise TypeError("Requires a .compressed file from Compression.py!")
     f = open(filename,'rb')
     data = pickle.load(f)
     f.close()
-    Decompress(data,filename[:-11])
-    
-def Decompress(data,filename):
-    """Saves a decompressed version of the image."""
+
+    # Additional prep
+    filename = filename[:-11]
     tt = 0
     quality = ord(data[0])
     data = data[1:]
@@ -42,7 +43,6 @@ def Decompress(data,filename):
     t1 = time.clock()
     tt += (t1-t0)
     print "took",(t1-t0),"seconds."
-
     
     print "De-Quantizing data...",
     t0 = time.clock()
@@ -52,7 +52,6 @@ def Decompress(data,filename):
     t1 = time.clock()
     tt += (t1-t0)
     print "took",(t1-t0),"seconds."
-
     
     print "Undoing DCTs...",
     t0 = time.clock()
@@ -62,7 +61,6 @@ def Decompress(data,filename):
     t1 = time.clock()
     tt += (t1-t0)
     print "took",(t1-t0),"seconds."
-
     
     print "Merging 8x8 blocks...",
     t0 = time.clock()
@@ -70,7 +68,6 @@ def Decompress(data,filename):
     t1 = time.clock()
     tt += (t1-t0)
     print "took",(t1-t0),"seconds."
-
     
     print "Rearranging Data...",
     t0 = time.clock()
@@ -78,7 +75,6 @@ def Decompress(data,filename):
     t1 = time.clock()
     tt += (t1-t0)
     print "took",(t1-t0),"seconds."
-
     
     misc.imsave((filename+'.png'),final_array)
     print "\nAll in all...",
