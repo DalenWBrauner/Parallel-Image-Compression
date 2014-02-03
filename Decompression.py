@@ -91,7 +91,7 @@ def Decompress(data,filename):
 ##### Stepping-stone functions:
 
 def Decode_Width(code, debugging=True):
-    """Decodes a Run_Width-encoded list"""
+    """Decodes a Run_Width-encoded string into its list form"""
     msg = []
     i = 0
     if code[-1] == chr(128) and code[-2] == chr(128):
