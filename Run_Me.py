@@ -78,4 +78,8 @@ def Decompression(timepref, filename):
 def Both(timepref, filename):
     """ Automatically Compresses and Decompresses a file """
 
+    Cfilename = Compression(timepref, filename)
+    Decompression(timepref, Cfilename)
     raise NotImplementedError
+
+if __name__ == '__main__':  main()
