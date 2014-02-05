@@ -3,46 +3,9 @@ Image Prereqs:
 	No single dimension can exceed 2040 pixels
 	Images ought to be in .png format
 
-Compression.py:
-	Currently:
-		A python file that will compress a user-specified image. Aside from libraries, contains all functions required to do so sans arraymap.
-	Future:
-		A python library consisting of all functions required to compress an image.
-
-Compression_Threaded.py:
-	Currently:
-		A highly unfinished python file originally destined to be able to compress images via threads.
-	Future:
-		A python file that will compress a user-specified image via threading.
-		...Or maybe it'll be obsolete and I'll incorporate that functionality into something else.
-
-Compression_GPU.py
-	Currently:
-		A highly unfinished python file originally destined to be able to compress images via PyCUDA threads.
-	Future:
-		A python file that will compress a user-specified image via PyCUDA threading.
-		...Or maybe it'll be obsolete and I'll incorporate that functionality into something else.
-
-Decompression.py:
-	Currently:
-		A python file that will decompress a user-specified ".compressed" file. Aside from libraries, contains all functions required to do so sans arraymap.
-	Future:
-		A python library consisting of all functions required to decompress output from Compression.py.
-
-Debug.py
-	Currently:
-		A python library consisting of many of the functions required to debug Compression.py and Decompression.py.
-	Future:
-		A python library consisting of many of the functions required to debug all included python files.
-
-Resaver.py
-	Currently:
-		A python file that will compress and immediately decompress an image file. (Was mostly used for debugging.)
-	Future:
-		Obsolete. Debugging potential may be integrated into Debug.py. 
-
-Run_Me.py:
-	Currently:
-		In-progress. Doesn't do much of anything.
-	Future:
-		What a user will run when they want to do anything sans debugging.
+	
+I realized it's important I scrap this plan and just jump into PyCUDA.
+I had forgotten the reason I had shifted away from Python Threading was because of its awful near-900 thread limit. I simply can't create as many threads as I need to. If PyCUDA has this limitation, fine, but I'm quite confident it's designed not to.
+Which means I'd have to craft a completely different solution to have the compressor work in threaded Python rather than PyCUDA, which is a huge waste of my time.
+So today I accomplished little. I should be ashamed of it, but at least I'm moving forward.
+I don't mind my thoughts being public. I'm growing, and always will be.
