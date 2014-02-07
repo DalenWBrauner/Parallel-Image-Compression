@@ -2,7 +2,7 @@
 .                                   .
 |   Compression_GPU.py              |
 |   Written by Dalen W. Brauner     |
-|   Status: "Finished"              |
+|   Status: Unfinished              |
 *                                   *
 """
 # Builtin libs
@@ -15,6 +15,8 @@ from scipy import ndimage as image
 
 # GPU libs
 import pycuda.autoinit
+import pycuda.driver as cuda
+from pycuda.compiler import SourceModule
 
 # Custom libs
 from array_handler import arraymap
@@ -191,7 +193,7 @@ def Calc_DCT(M):
     # Calculate the rest
     for i in xrange(N-1):
         for j in xrange(N):
-            C[i+1,j] = second * cos( (2*j+1) *(i+1) *pi *third)
+            C[i+1,j] = second * cos( (2*j+1) *(i+1) *pi *third )
 
     # Calculate the DCT
     M = (C * M * C.T).round(0)

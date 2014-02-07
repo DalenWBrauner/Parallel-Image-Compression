@@ -10,9 +10,9 @@
 from numpy import matrix, array
 
 # Custom libs
-from array_handler import arraymap
-from Compression import *
-from Decompression import *
+##from array_handler import arraymap
+##from Compression import *
+##from Decompression import *
 
 def Test_DCT():
     print 'Test_DCT()\n'

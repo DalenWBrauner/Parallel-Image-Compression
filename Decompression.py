@@ -186,14 +186,10 @@ def Undo_DCT(M):
     first = 1.0/sqrt(N)
     second = sqrt(2.0/N)
     third = 1.0/(2.0*N)
-    C = matrix([[0 for j in xrange(N)] for i in xrange(N)],dtype='f')
-    # Correct the first few values
+    C = matrix([[second * cos( (2*j+1) *(i) *pi *third )
+                 for j in xrange(N)] for i in xrange(N)],dtype='f')
     for i in xrange(N):
         C[0,i] = first
-    # Calculate the rest
-    for i in xrange(N-1):
-        for j in xrange(N):
-            C[i+1,j] = second * cos( (2*j+1) *(i+1) *pi *third)
 
     # Scale pixel values to be consistent with JPEG algorithm
     M[0,0] += 1024
